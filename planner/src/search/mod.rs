@@ -3,7 +3,7 @@ mod search_stats;
 mod h_type;
 mod progression;
 mod search_graph;
-mod fixed_method;
+pub mod fixed_method;
 
 use super::task_network::{HTN, Applicability, Task, CompoundTask, PrimitiveAction};
 use search_stats::SearchStats;
