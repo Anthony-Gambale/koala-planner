@@ -40,9 +40,20 @@ def solve(domain, problem, timeout=30):
     # Search
     if os.path.isfile(planner_path + "result.json"):
         try:
-            result = subprocess.run(
-                [planner_path + "target/release/planner", planner_path + "result.json"],
-                capture_output=True, timeout= 60 * timeout)
+            release_suffix = "target/release/planner"
+            debug_suffix = "target/debug/planner"
+            if os.path.isfile(planner_path + release_suffix):
+                result = subprocess.run(
+                    [planner_path + release_suffix, planner_path + "result.json"],
+                    capture_output=True, timeout= 60 * timeout)
+            elif os.path.isfile(planner_path + debug_suffix):
+                print("Release binary not available, using debug binary...")
+                result = subprocess.run(
+                    [planner_path + debug_suffix, planner_path + "result.json"],
+                    capture_output=True, timeout= 60 * timeout)
+            else:
+                print(f"No binary found in {planner_path + release_suffix} or {planner_path + debug_suffix}, exiting.")
+                sys.exit(1)
             with open(path + f"/{problem}_solution.txt", "x") as f:
                 f.write(result.stdout.decode("utf-8"))
         except subprocess.TimeoutExpired:
