@@ -17,10 +17,16 @@ pub fn my_first_function() -> i32 {
     1 + 1
 }
 
+pub struct Edge {
+    task_name: String,
+    method_name: Option<String>,
+    next_node: Rc<SearchNode>,
+}
+
 pub struct SearchNode {
     pub tn: HTN,
     pub state: Rc<HashSet<u32>>,
-    pub progressions: Vec<Rc<SearchNode>>,
+    pub progressions: Vec<Edge>,
     pub status: NodeStatus,
     pub depth: u32,
 }
@@ -35,14 +41,14 @@ impl SearchNode {
         return 0;
     }
 
-    pub fn get_successors(&self) -> Vec<Rc<SearchNode>> {
+    pub fn get_successors(&self) -> Vec<SearchNode> {
         // TODO
         return vec![];
     }
 
-    pub fn to_string(&self) -> String {
+    pub fn to_string(&self, indentation: String) -> String {
         // TODO
-        String::from("TODO")
+        String::from("")
     }
 }
 
@@ -67,16 +73,17 @@ impl SearchSpace {
 
     pub fn to_string(&self) -> String {
         // TODO
-        String::from("TODO")
+        String::from("")
     }
 }
+
 struct AStarSearch {}
 impl AStarSearch {
     pub fn run(
         problem: &FONDProblem,
         heuristic: fn(&ClassicalDomain, &HashSet<u32>, &HashSet<u32>) -> f32,
     ) -> (SearchResult, SearchStats) {
-        // Call the search function from here
+        // TODO
         panic!()
     }
 
@@ -86,6 +93,7 @@ impl AStarSearch {
         search_space: SearchSpace,
         is_goal: fn(&SearchNode, &SearchSpace) -> bool,
     ) -> (SearchResult, SearchStats) {
+        // TODO
         panic!()
     }
 }
