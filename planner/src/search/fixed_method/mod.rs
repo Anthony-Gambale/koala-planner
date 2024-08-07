@@ -56,7 +56,6 @@ pub struct SearchSpace {
     /*
         SearchNodes in the same bucket are *maybe* isomorphic
         SearchNodes in different buckets are *definitely not* isomorphic
-        Only need to test a given node with the nodes in the same bucket
     */
     pub maybe_isomorphic_buckets: HashMap<u32, Vec<Rc<SearchNode>>>,
     pub initial_search_node: Rc<SearchNode>,
