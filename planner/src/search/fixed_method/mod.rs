@@ -24,7 +24,6 @@ pub struct SearchNode {
     pub state: HashSet<u32>,
     pub progressions: Vec<Edge>,
     pub status: NodeStatus,
-    pub depth: u32,
 }
 
 impl SearchNode {
@@ -40,9 +39,24 @@ impl SearchNode {
         number_of_tasks + 999983 * fact_sum
     }
 
-    pub fn get_successors(&self) -> Vec<SearchNode> {
-        // TODO - 4
-        return vec![];
+    pub fn get_successors_systematic(&self) -> Vec<SearchNode> {
+        let mut result = vec![];
+
+        let unconstrained = self.tn.get_unconstrained_tasks();
+        let (compounds, actions) = self.tn.separate_tasks(&unconstrained);
+        
+        // If there are no compound tasks, move on to action execution
+        if compounds.is_empty() {
+            'prim_loop: for prim in actions.iter() {
+                if let Task::Primitive(act) = &*self.tn.get_task(*prim).borrow() {
+                    if !act.is_applicable(&self.state) {
+                        continue 'prim_loop;
+                    }
+                    panic!(); // TODO - 4
+                }
+            }
+        }
+        result
     }
 
     pub fn to_string(&self, indentation: String) -> String {
@@ -50,11 +64,11 @@ impl SearchNode {
         // The order needs to be deterministic for tests to pass
         // It's not a problem that it's costly because this function is only for debugging
         let mut sorted_state: Vec<&u32> = self.state.iter().collect();
-        sorted_state.sort_by(|a,b| a.cmp(b));
+        sorted_state.sort_by(|a, b| a.cmp(b));
         let state = format!("{:?}", sorted_state);
         let uncon_ids = self.tn.get_unconstrained_tasks();
         let mut sorted_uncon_ids: Vec<&u32> = uncon_ids.iter().collect();
-        sorted_uncon_ids.sort_by(|a,b| a.cmp(b));
+        sorted_uncon_ids.sort_by(|a, b| a.cmp(b));
         let mut uncon_tagged = Vec::new();
         for id in uncon_ids {
             let name = self.tn.get_task(id).borrow().get_name();
@@ -65,7 +79,7 @@ impl SearchNode {
 }
 
 pub fn is_goal_weak_ld(node: Rc<SearchNode>, space: Rc<SearchSpace>) -> bool {
-    return node.tn.is_empty()
+    node.tn.is_empty()
 }
 
 pub struct SearchSpace {

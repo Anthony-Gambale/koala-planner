@@ -25,7 +25,6 @@ fn get_search_node() -> SearchNode {
         state: HashSet::from([1, 2, 3]),
         progressions: vec![],
         status: NodeStatus::OnGoing,
-        depth: 782,
     }
 }
 
