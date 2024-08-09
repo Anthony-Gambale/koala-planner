@@ -62,7 +62,7 @@ impl SearchNode {
     }
 }
 
-pub fn is_goal_weak_ld(node: Rc<SearchNode>, space: Rc<SearchSpace>) -> bool {
+pub fn is_goal_weak_ld(node: Rc<SearchNode>) -> bool {
     node.tn.is_empty()
 }
 
@@ -188,10 +188,10 @@ impl AStarSearch {
 
     fn search(
         problem: &FONDProblem,
-        heuristic_fn: fn(&ClassicalDomain, &HashSet<u32>, &HashSet<u32>) -> f32,
+        heuristic_fn: fn(&FONDProblem, &HashSet<u32>, &HTN) -> f32,
         successor_fn: fn(&SearchNode) -> Vec<SearchNode>,
         search_space: SearchSpace,
-        is_goal: fn(Rc<SearchNode>, Rc<SearchSpace>) -> bool,
+        is_goal: fn(Rc<SearchNode>) -> bool,
     ) -> (SearchResult, SearchStats) {
         // TODO - 7
         panic!()
