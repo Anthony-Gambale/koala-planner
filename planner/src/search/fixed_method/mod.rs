@@ -39,24 +39,8 @@ impl SearchNode {
         number_of_tasks + 999983 * fact_sum
     }
 
-    pub fn get_successors_systematic(&self) -> Vec<SearchNode> {
-        let mut result = vec![];
-
-        let unconstrained = self.tn.get_unconstrained_tasks();
-        let (compounds, actions) = self.tn.separate_tasks(&unconstrained);
-        
-        // If there are no compound tasks, move on to action execution
-        if compounds.is_empty() {
-            'prim_loop: for prim in actions.iter() {
-                if let Task::Primitive(act) = &*self.tn.get_task(*prim).borrow() {
-                    if !act.is_applicable(&self.state) {
-                        continue 'prim_loop;
-                    }
-                    panic!(); // TODO - 4
-                }
-            }
-        }
-        result
+    pub fn is_isomorphic(&self, other: Rc<SearchNode>) -> bool {
+        self.state == other.state && HTN::is_isomorphic(&self.tn, &other.tn)
     }
 
     pub fn to_string(&self, indentation: String) -> String {
@@ -82,6 +66,54 @@ pub fn is_goal_weak_ld(node: Rc<SearchNode>, space: Rc<SearchSpace>) -> bool {
     node.tn.is_empty()
 }
 
+pub fn get_successors_systematic(node: &SearchNode) -> Vec<SearchNode> {
+    let mut result = vec![];
+
+    let unconstrained = node.tn.get_unconstrained_tasks();
+    let (compounds, actions) = node.tn.separate_tasks(&unconstrained);
+
+    // Expand a compound task if there is one
+    if let Some(id) = compounds.first() {
+        if let Task::Compound(CompoundTask { name, methods }) = &*node.tn.get_task(*id).borrow() {
+            for method in methods.iter() {
+                let new_tn = node.tn.decompose(*id, method);
+                result.push(SearchNode {
+                    tn: new_tn,
+                    state: node.state.clone(),
+                    progressions: vec![],
+                    status: NodeStatus::OnGoing,
+                })
+            }
+        }
+    }
+
+    // If a compound task was progressed, exit
+    if !result.is_empty() {
+        return result;
+    }
+
+    // If not, expand primitive tasks
+    'prim_loop: for prim in actions.iter() {
+        if let Task::Primitive(act) = &*node.tn.get_task(*prim).borrow() {
+            if !act.is_applicable(&node.state) {
+                continue 'prim_loop;
+            }
+            let new_tn = node.tn.apply_action(*prim);
+            let outcomes = act.transition(&node.state);
+            for outcome in outcomes {
+                result.push(SearchNode {
+                    tn: new_tn.clone(),
+                    state: outcome,
+                    progressions: vec![],
+                    status: NodeStatus::OnGoing,
+                })
+            }
+        }
+    }
+
+    return result;
+}
+
 pub struct SearchSpace {
     /*
         SearchNodes in the same bucket are *maybe* isomorphic
@@ -95,9 +127,38 @@ impl SearchSpace {
     /*
         Either finds an isomorphic node or creates a new one
     */
-    pub fn find_isomorphic(new_node: SearchNode) -> Rc<SearchNode> {
-        // TODO - 5
-        Rc::new(new_node)
+    pub fn find_isomorphic(&mut self, new_node: SearchNode) -> Rc<SearchNode> {
+        let hash = new_node.maybe_isomorphic_hash();
+        let ret = match self.maybe_isomorphic_buckets.get_mut(&hash) {
+            Some(bucket) => {
+                let mut ret = None;
+                'find_isomorphic: for maybe_isomorphic_node in bucket.iter() {
+                    if new_node.is_isomorphic(maybe_isomorphic_node.clone()) {
+                        ret = Some(maybe_isomorphic_node.clone());
+                        break 'find_isomorphic;
+                    }
+                }
+                match ret {
+                    Some(isomorphic_node) => {
+                        // Found an isomorphic node
+                        isomorphic_node
+                    },
+                    None => {
+                        // No isomorphic node, add this to the bucket
+                        let ret = Rc::new(new_node);
+                        bucket.push(ret.clone());
+                        ret
+                    }
+                }
+            },
+            None => {
+                // No bucket exists for this hash, so make one
+                let ret = Rc::new(new_node);
+                self.maybe_isomorphic_buckets.insert(hash, vec![ret.clone()]);
+                ret
+            }
+        };
+        ret
     }
 
     pub fn to_string(&self) -> String {
@@ -110,7 +171,8 @@ struct AStarSearch {}
 impl AStarSearch {
     pub fn run(
         problem: &FONDProblem,
-        heuristic: fn(&ClassicalDomain, &HashSet<u32>, &HashSet<u32>) -> f32,
+        heuristic_fn: fn(&ClassicalDomain, &HashSet<u32>, &HashSet<u32>) -> f32,
+        successor_fn: fn(&SearchNode) -> Vec<SearchNode>,
     ) -> (SearchResult, SearchStats) {
         // TODO - 8
         panic!()
@@ -118,7 +180,8 @@ impl AStarSearch {
 
     fn search(
         problem: &FONDProblem,
-        heuristic: fn(&ClassicalDomain, &HashSet<u32>, &HashSet<u32>) -> f32,
+        heuristic_fn: fn(&ClassicalDomain, &HashSet<u32>, &HashSet<u32>) -> f32,
+        successor_fn: fn(&SearchNode) -> Vec<SearchNode>,
         search_space: SearchSpace,
         is_goal: fn(Rc<SearchNode>, Rc<SearchSpace>) -> bool,
     ) -> (SearchResult, SearchStats) {
