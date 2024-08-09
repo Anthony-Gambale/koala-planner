@@ -175,25 +175,12 @@ impl SearchSpace {
     }
 }
 
-struct AStarSearch {}
-impl AStarSearch {
-    pub fn run(
-        problem: &FONDProblem,
-        heuristic_fn: fn(&ClassicalDomain, &HashSet<u32>, &HashSet<u32>) -> f32,
-        successor_fn: fn(&SearchNode) -> Vec<SearchNode>,
-    ) -> (SearchResult, SearchStats) {
-        // TODO - 8
-        panic!()
-    }
-
-    fn search(
-        problem: &FONDProblem,
-        heuristic_fn: fn(&FONDProblem, &HashSet<u32>, &HTN) -> f32,
-        successor_fn: fn(&SearchNode) -> Vec<SearchNode>,
-        search_space: SearchSpace,
-        is_goal: fn(Rc<SearchNode>) -> bool,
-    ) -> (SearchResult, SearchStats) {
-        // TODO - 7
-        panic!()
-    }
+pub fn a_star_search(
+    problem: &FONDProblem,
+    heuristic_fn: fn(&ClassicalDomain, &HashSet<u32>, &HashSet<u32>) -> f32,
+    successor_fn: fn(&SearchNode) -> Vec<SearchNode>,
+    is_goal: fn(Rc<SearchNode>) -> bool,
+) -> (SearchResult, SearchStats) {
+    // TODO - 7
+    panic!()
 }
