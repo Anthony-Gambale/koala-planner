@@ -142,7 +142,7 @@ impl SearchSpace {
                     Some(isomorphic_node) => {
                         // Found an isomorphic node
                         isomorphic_node
-                    },
+                    }
                     None => {
                         // No isomorphic node, add this to the bucket
                         let ret = Rc::new(new_node);
@@ -150,15 +150,23 @@ impl SearchSpace {
                         ret
                     }
                 }
-            },
+            }
             None => {
                 // No bucket exists for this hash, so make one
                 let ret = Rc::new(new_node);
-                self.maybe_isomorphic_buckets.insert(hash, vec![ret.clone()]);
+                self.maybe_isomorphic_buckets
+                    .insert(hash, vec![ret.clone()]);
                 ret
             }
         };
         ret
+    }
+
+    pub fn install_successors(&self, node: &mut SearchNode, successors: Vec<SearchNode>) {
+        // TODO - 5
+        // Pass each successor through `find_isomorphic` to get an Rc<SearchNode>
+        // Then insert each Rc<SearchNode> into the node's progressions vector
+        panic!();
     }
 
     pub fn to_string(&self) -> String {
