@@ -15,16 +15,13 @@ use std::{
 mod fixed_method_tests;
 mod search_node;
 mod search_space;
-
-pub fn is_goal_weak_ld(node: Rc<SearchNode>) -> bool {
-    node.tn.is_empty()
-}
+mod goal_checks;
 
 pub fn a_star_search(
     problem: &FONDProblem,
     heuristic_fn: fn(&ClassicalDomain, &HashSet<u32>, &HashSet<u32>) -> f32,
-    successor_fn: fn(&SearchNode) -> Vec<SearchNode>,
-    is_goal: fn(Rc<SearchNode>) -> bool,
+    successor_fn: fn(Rc<RefCell<SearchNode>>) -> Vec<SearchNode>,
+    is_goal: fn(Rc<RefCell<SearchNode>>) -> bool,
 ) -> (SearchResult, SearchStats) {
     // TODO - 6
     panic!()
