@@ -22,7 +22,7 @@ fn get_search_node() -> SearchNode {
                 (30, domain.get_id("Pack bag")),
             ]),
         ),
-        HashSet::from([1, 2, 3])
+        HashSet::from([1, 2, 3]),
     )
 }
 
@@ -30,11 +30,9 @@ fn get_search_node() -> SearchNode {
 #[test]
 pub fn test_search_node_to_string() {
     let search_node = get_search_node();
-    let indentation = String::from("");
-    let indentation2 = String::from("|  ");
-    println!("{}", search_node.to_string(indentation));
+    println!("{}", search_node.to_string());
     assert_eq!(
-        search_node.to_string(indentation2),
-        String::from("|  uncon=[\"10:Eat breakfast\", \"30:Pack bag\"] state=[1, 2, 3]")
+        search_node.to_string(),
+        String::from("uncon=[\"10:Eat breakfast\", \"30:Pack bag\"] state=[1, 2, 3]")
     );
 }

@@ -14,9 +14,9 @@ use std::{
 };
 
 mod fixed_method_tests;
+mod goal_checks;
 mod search_node;
 mod search_space;
-mod goal_checks;
 
 pub fn a_star_search(
     problem: &FONDProblem,
@@ -28,7 +28,10 @@ pub fn a_star_search(
     initial_search_node: (HTN, HashSet<u32>),
 ) -> Option<String> {
     let mut space = SearchSpace::new(initial_search_node);
-    space.initial_search_node.borrow_mut().compute_h_value(problem, heuristic_fn);
+    space
+        .initial_search_node
+        .borrow_mut()
+        .compute_h_value(problem, heuristic_fn);
     space.initial_search_node.borrow_mut().g_value = Some(0.0);
     // let mut open = BinaryHeap::new();
     // open.push(space.initial_search_node.clone());
@@ -44,7 +47,9 @@ pub fn a_star_search(
             let mut succ_ref = edge.next_node.borrow_mut();
             match succ_ref.status {
                 AStarStatus::Open => {
-                    if parent.borrow().g_value.unwrap() + edge_weight_fn() >= succ_ref.g_value.unwrap() {
+                    if parent.borrow().g_value.unwrap() + edge_weight_fn()
+                        >= succ_ref.g_value.unwrap()
+                    {
                         continue 'improve;
                     }
                     // Remove and re-insert to maintain ordering, since f value changed
@@ -53,9 +58,11 @@ pub fn a_star_search(
                     (*succ_ref).g_value = Some(parent.borrow().g_value.unwrap() + edge_weight_fn());
                     (*succ_ref).compute_h_value(problem, heuristic_fn);
                     open.insert(edge.next_node.clone());
-                },
+                }
                 AStarStatus::Closed => {
-                    if parent.borrow().g_value.unwrap() + edge_weight_fn() >= succ_ref.g_value.unwrap() {
+                    if parent.borrow().g_value.unwrap() + edge_weight_fn()
+                        >= succ_ref.g_value.unwrap()
+                    {
                         continue 'improve;
                     }
                     (*succ_ref).parent = Some(parent.clone());
@@ -63,16 +70,16 @@ pub fn a_star_search(
                     (*succ_ref).compute_h_value(problem, heuristic_fn);
                     (*succ_ref).status = AStarStatus::Open;
                     open.insert(edge.next_node.clone());
-                },
+                }
                 AStarStatus::New => {
                     (*succ_ref).parent = Some(parent.clone());
                     (*succ_ref).g_value = Some(parent.borrow().g_value.unwrap() + edge_weight_fn());
                     (*succ_ref).compute_h_value(problem, heuristic_fn);
                     (*succ_ref).status = AStarStatus::Open;
                     open.insert(edge.next_node.clone());
-                },
+                }
             }
         }
     }
-    return None
+    return None;
 }

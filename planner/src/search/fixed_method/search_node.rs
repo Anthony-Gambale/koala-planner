@@ -39,8 +39,8 @@ impl SearchNode {
             status: AStarStatus::New,
             parent: None,
             g_value: None,
-            h_value: None
-        }
+            h_value: None,
+        };
     }
 
     /*
@@ -57,7 +57,7 @@ impl SearchNode {
         self.state == other.borrow().state && HTN::is_isomorphic(&self.tn, &other.borrow().tn)
     }
 
-    pub fn to_string(&self, indentation: String) -> String {
+    pub fn to_string(&self) -> String {
         // Sorting is needed so order is predictable (for tests to pass)
         let mut sorted_state: Vec<&u32> = self.state.iter().collect();
         sorted_state.sort_by(|a, b| a.cmp(b));
@@ -70,11 +70,11 @@ impl SearchNode {
             let name = self.tn.get_task(id).borrow().get_name();
             uncon_tagged.push(format!("{}:{}", id, name));
         }
-        format!("{}uncon={:?} state={}", indentation, uncon_tagged, state)
+        format!("uncon={:?} state={}", uncon_tagged, state)
     }
 
     pub fn to_string_path(&self) -> String {
-        let our_part = self.to_string(String::from(""));
+        let our_part = self.to_string();
         if let Some(node) = self.parent.clone() {
             node.borrow().to_string_path() + "\n" + &our_part
         } else {
@@ -82,7 +82,11 @@ impl SearchNode {
         }
     }
 
-    pub fn compute_h_value(&mut self, p: &FONDProblem, h: fn(&FONDProblem, &HashSet<u32>, &HTN) -> f32) {
+    pub fn compute_h_value(
+        &mut self,
+        p: &FONDProblem,
+        h: fn(&FONDProblem, &HashSet<u32>, &HTN) -> f32,
+    ) {
         self.h_value = Some(h(p, &self.state, &self.tn));
     }
 
@@ -97,7 +101,9 @@ impl SearchNode {
 
 impl Ord for SearchNode {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.f_value().partial_cmp(&other.f_value()).expect("Unable to compare the f values of two search nodes.")
+        self.f_value()
+            .partial_cmp(&other.f_value())
+            .expect("Unable to compare the f values of two search nodes.")
     }
 }
 
@@ -115,7 +121,9 @@ impl PartialEq for SearchNode {
     }
 }
 
-pub fn get_successors_systematic(node: Rc<RefCell<SearchNode>>) -> Vec<(String, Option<String>, SearchNode)> {
+pub fn get_successors_systematic(
+    node: Rc<RefCell<SearchNode>>,
+) -> Vec<(String, Option<String>, SearchNode)> {
     let mut result = vec![];
 
     let unconstrained = node.borrow().tn.get_unconstrained_tasks();

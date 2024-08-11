@@ -23,12 +23,15 @@ pub struct SearchSpace {
 
 impl SearchSpace {
     pub fn new(initial_search_node: (HTN, HashSet<u32>)) -> SearchSpace {
-        let node = Rc::new(RefCell::new(SearchNode::new(initial_search_node.0, initial_search_node.1)));
+        let node = Rc::new(RefCell::new(SearchNode::new(
+            initial_search_node.0,
+            initial_search_node.1,
+        )));
         node.borrow_mut().status = AStarStatus::Open;
         let buckets = HashMap::from([(node.borrow().maybe_isomorphic_hash(), vec![node.clone()])]);
         SearchSpace {
             maybe_isomorphic_buckets: buckets,
-            initial_search_node: node
+            initial_search_node: node,
         }
     }
 
@@ -70,7 +73,11 @@ impl SearchSpace {
         ret
     }
 
-    pub fn install_successors(&mut self, node: Rc<RefCell<SearchNode>>, successors: Vec<(String, Option<String>, SearchNode)>) {
+    pub fn install_successors(
+        &mut self,
+        node: Rc<RefCell<SearchNode>>,
+        successors: Vec<(String, Option<String>, SearchNode)>,
+    ) {
         for (task_name, method_name, successor) in successors {
             let successor_in_graph: Rc<RefCell<SearchNode>> = self.find_isomorphic(successor);
             node.borrow_mut().progressions.push(Edge {
