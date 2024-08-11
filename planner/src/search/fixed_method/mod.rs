@@ -7,10 +7,7 @@ use search_graph::*;
 use search_node::*;
 use search_space::SearchSpace;
 use std::{
-    cell::RefCell,
-    collections::{BTreeSet, HashMap, HashSet},
-    rc::Rc,
-    string,
+    cell::RefCell, collections::{BTreeSet, HashMap, HashSet}, iter::successors, rc::Rc, string
 };
 
 mod fixed_method_tests;
@@ -21,7 +18,7 @@ mod search_space;
 pub fn a_star_search(
     problem: &FONDProblem,
     heuristic_fn: fn(&FONDProblem, &HashSet<u32>, &HTN) -> f32,
-    successor_fn: fn(Rc<RefCell<SearchNode>>) -> Vec<(String, Option<String>, SearchNode)>,
+    successor_fn: fn(&mut SearchSpace, Rc<RefCell<SearchNode>>) -> Vec<(String, Option<String>, SearchNode)>,
     // Not sure what the type signature should be. Using constant function for now.
     edge_weight_fn: fn() -> f32,
     goal_check_fn: fn(&FONDProblem, Rc<RefCell<SearchNode>>) -> bool,
@@ -42,7 +39,8 @@ pub fn a_star_search(
                 Some(parent.borrow().to_string_path(problem)),
             );
         }
-        space.install_successors(parent.clone(), successor_fn(parent.clone()));
+        let successors = successor_fn(&mut space, parent.clone());
+        space.install_successors(parent.clone(), successors);
         'improve: for edge in parent.borrow().progressions.iter() {
             { // succ_ref lifetime
                 let mut succ_ref = edge.next_node.borrow_mut();

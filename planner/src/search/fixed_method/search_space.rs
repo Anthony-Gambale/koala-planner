@@ -7,7 +7,7 @@ use search_graph::*;
 use search_node::*;
 use std::{
     cell::RefCell,
-    collections::{BTreeMap, HashMap, HashSet},
+    collections::{HashMap, HashSet},
     rc::Rc,
     string,
 };
@@ -19,16 +19,18 @@ pub struct SearchSpace {
     */
     pub maybe_isomorphic_buckets: HashMap<u32, Vec<Rc<RefCell<SearchNode>>>>,
     pub initial_search_node: Rc<RefCell<SearchNode>>,
+    pub next_node_id: u32,
 }
 
 impl SearchSpace {
     pub fn new(init_tn: HTN, init_state: HashSet<u32>) -> SearchSpace {
-        let node = Rc::new(RefCell::new(SearchNode::new(init_tn, init_state)));
+        let node = Rc::new(RefCell::new(SearchNode::new(0, init_tn, init_state)));
         node.borrow_mut().status = AStarStatus::Open;
         let buckets = HashMap::from([(node.borrow().maybe_isomorphic_hash(), vec![node.clone()])]);
         SearchSpace {
             maybe_isomorphic_buckets: buckets,
             initial_search_node: node,
+            next_node_id: 0,
         }
     }
 
@@ -90,7 +92,7 @@ impl SearchSpace {
         SearchSpace::to_string_helper(
             problem,
             self.initial_search_node.clone(),
-            &mut BTreeMap::new(),
+            &mut HashMap::new(),
             String::from(""),
             &mut node_number,
         )
@@ -99,16 +101,16 @@ impl SearchSpace {
     pub fn to_string_helper(
         problem: &FONDProblem,
         current: Rc<RefCell<SearchNode>>,
-        visited: &mut BTreeMap<Rc<RefCell<SearchNode>>, u32>,
+        visited: &mut HashMap<u32, u32>, // node ID to line number in printout
         indentation: String,
         node_number: &mut u32,
     ) -> String {
-        let lookup = visited.get(&current);
+        let lookup = visited.get(&current.borrow().unique_id);
         if let Some(prev_number) = lookup {
             return format!("{}GOTO NODE_{}", indentation, *prev_number);
         }
         *node_number += 1;
-        visited.insert(current.clone(), *node_number);
+        visited.insert(current.borrow().unique_id, *node_number);
         let mut result = format!(
             "{}NODE_{} {}",
             indentation,

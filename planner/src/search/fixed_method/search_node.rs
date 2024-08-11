@@ -24,6 +24,7 @@ pub struct SearchNode {
     pub tn: HTN,
     pub state: HashSet<u32>,
     pub progressions: Vec<Edge>,
+    pub unique_id: u32,
     pub status: AStarStatus,
     pub parent: Option<Rc<RefCell<SearchNode>>>,
     pub g_value: Option<f32>,
@@ -31,11 +32,12 @@ pub struct SearchNode {
 }
 
 impl SearchNode {
-    pub fn new(tn: HTN, state: HashSet<u32>) -> SearchNode {
+    pub fn new(next_node_id: u32, tn: HTN, state: HashSet<u32>) -> SearchNode {
         return SearchNode {
             tn: tn,
             state: state,
             progressions: vec![],
+            unique_id: next_node_id,
             status: AStarStatus::New,
             parent: None,
             g_value: None,
@@ -128,6 +130,7 @@ impl PartialEq for SearchNode {
 }
 
 pub fn get_successors_systematic(
+    space: &mut SearchSpace,
     node: Rc<RefCell<SearchNode>>,
 ) -> Vec<(String, Option<String>, SearchNode)> {
     let mut result = vec![];
@@ -140,7 +143,8 @@ pub fn get_successors_systematic(
         if let Task::Compound(cmp) = &*node.borrow().tn.get_task(*id).borrow() {
             for method in cmp.methods.iter() {
                 let new_tn = node.borrow().tn.decompose(*id, method);
-                let node = SearchNode::new(new_tn, node.borrow().state.clone());
+                space.next_node_id += 1;
+                let node = SearchNode::new(space.next_node_id, new_tn, node.borrow().state.clone());
                 result.push((cmp.name.clone(), Some(method.name.clone()), node));
             }
         }
@@ -160,7 +164,8 @@ pub fn get_successors_systematic(
             let new_tn = node.borrow().tn.apply_action(*prim);
             let outcomes = act.transition(&node.borrow().state);
             for outcome in outcomes {
-                let node = SearchNode::new(new_tn.clone(), outcome);
+                space.next_node_id += 1;
+                let node = SearchNode::new(space.next_node_id, new_tn.clone(), outcome);
                 result.push((act.name.clone(), None, node));
             }
         }
