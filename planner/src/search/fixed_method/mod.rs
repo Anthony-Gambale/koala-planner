@@ -40,27 +40,29 @@ pub fn a_star_search(
             return Some(parent.borrow().to_string_path());
         }
         space.install_successors(parent.clone(), successor_fn(parent.clone()));
-        for edge in parent.borrow().progressions.iter() {
+        'improve: for edge in parent.borrow().progressions.iter() {
             let mut succ_ref = edge.next_node.borrow_mut();
             match succ_ref.status {
                 AStarStatus::Open => {
-                    if parent.borrow().g_value.unwrap() + edge_weight_fn() < succ_ref.g_value.unwrap() {
-                        // Remove and re-insert to maintain ordering, since f value changed
-                        open.remove(&edge.next_node.clone());
-                        (*succ_ref).parent = Some(parent.clone());
-                        (*succ_ref).g_value = Some(parent.borrow().g_value.unwrap() + edge_weight_fn());
-                        (*succ_ref).compute_h_value(problem, heuristic_fn);
-                        open.insert(edge.next_node.clone());
+                    if parent.borrow().g_value.unwrap() + edge_weight_fn() >= succ_ref.g_value.unwrap() {
+                        continue 'improve;
                     }
+                    // Remove and re-insert to maintain ordering, since f value changed
+                    open.remove(&edge.next_node.clone());
+                    (*succ_ref).parent = Some(parent.clone());
+                    (*succ_ref).g_value = Some(parent.borrow().g_value.unwrap() + edge_weight_fn());
+                    (*succ_ref).compute_h_value(problem, heuristic_fn);
+                    open.insert(edge.next_node.clone());
                 },
                 AStarStatus::Closed => {
-                    if parent.borrow().g_value.unwrap() + edge_weight_fn() < succ_ref.g_value.unwrap() {
-                        (*succ_ref).parent = Some(parent.clone());
-                        (*succ_ref).g_value = Some(parent.borrow().g_value.unwrap() + edge_weight_fn());
-                        (*succ_ref).compute_h_value(problem, heuristic_fn);
-                        (*succ_ref).status = AStarStatus::Open;
-                        open.insert(edge.next_node.clone());
+                    if parent.borrow().g_value.unwrap() + edge_weight_fn() >= succ_ref.g_value.unwrap() {
+                        continue 'improve;
                     }
+                    (*succ_ref).parent = Some(parent.clone());
+                    (*succ_ref).g_value = Some(parent.borrow().g_value.unwrap() + edge_weight_fn());
+                    (*succ_ref).compute_h_value(problem, heuristic_fn);
+                    (*succ_ref).status = AStarStatus::Open;
+                    open.insert(edge.next_node.clone());
                 },
                 AStarStatus::New => {
                     (*succ_ref).parent = Some(parent.clone());
