@@ -11,8 +11,8 @@ fn get_domain() -> Rc<DomainTasks> {
 
 fn get_search_node() -> SearchNode {
     let domain = get_domain();
-    SearchNode {
-        tn: HTN::new(
+    SearchNode::new(
+        HTN::new(
             BTreeSet::from([10, 20, 30]),
             vec![(10, 20), (30, 20)],
             domain.clone(),
@@ -22,13 +22,8 @@ fn get_search_node() -> SearchNode {
                 (30, domain.get_id("Pack bag")),
             ]),
         ),
-        state: HashSet::from([1, 2, 3]),
-        progressions: vec![],
-        status: NodeStatus::OnGoing,
-        parent: None,
-        g_value: 0 as f32,
-        h_value: 0 as f32,
-    }
+        HashSet::from([1, 2, 3])
+    )
 }
 
 #[cfg(test)]

@@ -1,6 +1,6 @@
 use super::*;
 use crate::{
-    domain_description::{ClassicalDomain, DomainTasks, FONDProblem},
+    domain_description::{ClassicalDomain, DomainTasks, FONDProblem, Facts},
     task_network::Method,
 };
 use search_graph::*;
@@ -22,6 +22,16 @@ pub struct SearchSpace {
 }
 
 impl SearchSpace {
+    pub fn new(initial_search_node: (HTN, HashSet<u32>)) -> SearchSpace {
+        let node = Rc::new(RefCell::new(SearchNode::new(initial_search_node.0, initial_search_node.1)));
+        node.borrow_mut().status = AStarStatus::Open;
+        let buckets = HashMap::from([(node.borrow().maybe_isomorphic_hash(), vec![node.clone()])]);
+        SearchSpace {
+            maybe_isomorphic_buckets: buckets,
+            initial_search_node: node
+        }
+    }
+
     /*
         Either finds an isomorphic node or creates a new one
     */
@@ -72,7 +82,12 @@ impl SearchSpace {
     }
 
     pub fn to_string(&self) -> String {
-        // TODO - 7
+        // TODO
         String::from("")
     }
+}
+
+pub fn search_result_weak_ld(problem: &FONDProblem, facts: &Facts) -> StrongPolicy {
+    // TODO
+    panic!();
 }
