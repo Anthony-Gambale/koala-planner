@@ -60,11 +60,15 @@ impl SearchSpace {
         ret
     }
 
-    pub fn install_successors(&self, node: Rc<RefCell<SearchNode>>, successors: Vec<SearchNode>) {
-        // TODO - 5
-        // Pass each successor through `find_isomorphic` to get an Rc<SearchNode>
-        // Then insert each Rc<SearchNode> into the node's progressions vector
-        panic!();
+    pub fn install_successors(&mut self, node: Rc<RefCell<SearchNode>>, successors: Vec<(String, Option<String>, SearchNode)>) {
+        for (task_name, method_name, successor) in successors {
+            let successor_in_graph: Rc<RefCell<SearchNode>> = self.find_isomorphic(successor);
+            node.borrow_mut().progressions.push(Edge {
+                task_name: task_name,
+                method_name: method_name,
+                next_node: successor_in_graph.clone(),
+            });
+        }
     }
 
     pub fn to_string(&self) -> String {

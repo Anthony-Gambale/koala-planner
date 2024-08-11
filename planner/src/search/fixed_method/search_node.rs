@@ -11,15 +11,18 @@ use std::{
     string,
 };
 pub struct Edge {
-    task_name: String,
-    method_name: Option<String>,
-    next_node: Rc<RefCell<SearchNode>>,
+    pub task_name: String,
+    pub method_name: Option<String>,
+    pub next_node: Rc<RefCell<SearchNode>>,
 }
 pub struct SearchNode {
     pub tn: HTN,
     pub state: HashSet<u32>,
     pub progressions: Vec<Edge>,
     pub status: NodeStatus,
+    pub parent: Option<Rc<RefCell<SearchNode>>>,
+    pub g_value: f32,
+    pub h_value: f32,
 }
 
 impl SearchNode {
@@ -58,7 +61,7 @@ impl SearchNode {
     }
 }
 
-pub fn get_successors_systematic(node: Rc<RefCell<SearchNode>>) -> Vec<SearchNode> {
+pub fn get_successors_systematic(node: Rc<RefCell<SearchNode>>) -> Vec<(String, Option<String>, SearchNode)> {
     let mut result = vec![];
 
     let unconstrained = node.borrow().tn.get_unconstrained_tasks();
@@ -66,15 +69,19 @@ pub fn get_successors_systematic(node: Rc<RefCell<SearchNode>>) -> Vec<SearchNod
 
     // Expand a compound task if there is one
     if let Some(id) = compounds.first() {
-        if let Task::Compound(CompoundTask { name, methods }) = &*node.borrow().tn.get_task(*id).borrow() {
-            for method in methods.iter() {
+        if let Task::Compound(cmp) = &*node.borrow().tn.get_task(*id).borrow() {
+            for method in cmp.methods.iter() {
                 let new_tn = node.borrow().tn.decompose(*id, method);
-                result.push(SearchNode {
+                let node = SearchNode {
                     tn: new_tn,
                     state: node.borrow().state.clone(),
                     progressions: vec![],
                     status: NodeStatus::OnGoing,
-                })
+                    parent: None,
+                    g_value: 0.0,
+                    h_value: 0.0,
+                };
+                result.push((cmp.name.clone(), Some(method.name.clone()), node));
             }
         }
     }
@@ -93,12 +100,16 @@ pub fn get_successors_systematic(node: Rc<RefCell<SearchNode>>) -> Vec<SearchNod
             let new_tn = node.borrow().tn.apply_action(*prim);
             let outcomes = act.transition(&node.borrow().state);
             for outcome in outcomes {
-                result.push(SearchNode {
+                let node = SearchNode {
                     tn: new_tn.clone(),
                     state: outcome,
                     progressions: vec![],
                     status: NodeStatus::OnGoing,
-                })
+                    parent: None,
+                    g_value: 0.0,
+                    h_value: 0.0,
+                };
+                result.push((act.name.clone(), None, node));
             }
         }
     }

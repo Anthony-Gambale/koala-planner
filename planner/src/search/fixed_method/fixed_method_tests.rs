@@ -25,6 +25,9 @@ fn get_search_node() -> SearchNode {
         state: HashSet::from([1, 2, 3]),
         progressions: vec![],
         status: NodeStatus::OnGoing,
+        parent: None,
+        g_value: 0 as f32,
+        h_value: 0 as f32,
     }
 }
 

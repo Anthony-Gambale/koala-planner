@@ -19,9 +19,12 @@ mod goal_checks;
 
 pub fn a_star_search(
     problem: &FONDProblem,
-    heuristic_fn: fn(&ClassicalDomain, &HashSet<u32>, &HashSet<u32>) -> f32,
-    successor_fn: fn(Rc<RefCell<SearchNode>>) -> Vec<SearchNode>,
+    heuristic_fn: fn(&FONDProblem, &HashSet<u32>, &HTN) -> f32,
+    successor_fn: fn(Rc<RefCell<SearchNode>>) -> Vec<(String, Option<String>, SearchNode)>,
+    // Not sure what the type signature should be. Using constant function for now.
+    edge_weight_fn: fn() -> f32,
     is_goal: fn(Rc<RefCell<SearchNode>>) -> bool,
+    initial_search_node: (&HashSet<u32>, &HTN),
 ) -> (SearchResult, SearchStats) {
     // TODO - 6
     panic!()
