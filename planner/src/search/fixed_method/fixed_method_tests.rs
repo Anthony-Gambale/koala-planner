@@ -1,38 +1,66 @@
+use crate::domain_description::Facts;
+
 use super::*;
-use std::collections::{BTreeSet, HashMap, HashSet};
-
-fn get_domain() -> Rc<DomainTasks> {
-    Rc::new(DomainTasks::new(vec![
-        Task::Compound(CompoundTask::new(String::from("Eat breakfast"), vec![])),
-        Task::Compound(CompoundTask::new(String::from("Pack bag"), vec![])),
-        Task::Compound(CompoundTask::new(String::from("Go to work"), vec![])),
-    ]))
-}
-
-fn get_search_node() -> SearchNode {
-    let domain = get_domain();
-    SearchNode::new(
-        HTN::new(
-            BTreeSet::from([10, 20, 30]),
-            vec![(10, 20), (30, 20)],
-            domain.clone(),
-            HashMap::from([
-                (10, domain.get_id("Eat breakfast")),
-                (20, domain.get_id("Go to work")),
-                (30, domain.get_id("Pack bag")),
-            ]),
-        ),
-        HashSet::from([1, 2, 3]),
-    )
-}
+use std::{
+    borrow::BorrowMut,
+    collections::{BTreeSet, HashMap, HashSet},
+};
 
 #[cfg(test)]
 #[test]
-pub fn test_search_node_to_string() {
-    let search_node = get_search_node();
-    println!("{}", search_node.to_string());
-    assert_eq!(
-        search_node.to_string(),
-        String::from("uncon=[\"10:Eat breakfast\", \"30:Pack bag\"] state=[1, 2, 3]")
+pub fn weak_ld_problem_1() {
+    use goal_checks::is_goal_weak_ld;
+
+    let f1: String = String::from("f1");
+    let f2: String = String::from("f2");
+    let f3: String = String::from("f3");
+    let problem = FONDProblem::new(
+        vec![f1.clone(), f2.clone(), f3.clone()],
+        vec![
+            (
+                String::from("a"),
+                vec![],
+                vec![(vec![], vec![f2.clone()]), (vec![], vec![])],
+            ),
+            (
+                String::from("b"),
+                vec![],
+                vec![(vec![f3.clone()], vec![f2.clone()])],
+            ),
+        ],
+        vec![
+            (
+                String::from("m0"),
+                String::from("init"),
+                vec![String::from("a"), String::from("b"), String::from("c")],
+                vec![(0, 2), (1, 2)],
+            ),
+            (
+                String::from("m1"),
+                String::from("c"),
+                vec![String::from("a"), String::from("c")],
+                vec![(0, 1)],
+            ),
+            (
+                String::from("m2"),
+                String::from("c"),
+                vec![String::from("a")],
+                vec![],
+            ),
+        ],
+        vec![String::from("c"), String::from("init")],
+        HashSet::from([f1.clone(), f2.clone()]),
+        String::from("init"),
     );
+    let (space, plan) = a_star_search(
+        &problem,
+        |x, y, z| 0.0,
+        get_successors_systematic,
+        || 1.0,
+        is_goal_weak_ld,
+    );
+    println!("\nPLAN\n");
+    println!("{}", plan.unwrap());
+    println!("\nSPACE\n");
+    println!("{}", space.to_string(&problem));
 }

@@ -6,7 +6,7 @@ use crate::{
 use search_graph::*;
 use std::{
     cell::RefCell,
-    collections::{HashMap, HashSet},
+    collections::{BTreeMap, HashMap, HashSet},
     rc::Rc,
     string,
 };
@@ -57,26 +57,32 @@ impl SearchNode {
         self.state == other.borrow().state && HTN::is_isomorphic(&self.tn, &other.borrow().tn)
     }
 
-    pub fn to_string(&self) -> String {
+    pub fn to_string(&self, problem: &FONDProblem) -> String {
         // Sorting is needed so order is predictable (for tests to pass)
         let mut sorted_state: Vec<&u32> = self.state.iter().collect();
         sorted_state.sort_by(|a, b| a.cmp(b));
-        let state = format!("{:?}", sorted_state);
+        let mut state_names = Vec::new();
+        for id in sorted_state {
+            let name = problem.facts.get_fact(*id);
+            state_names.push(name);
+        }
+
         let uncon_ids = self.tn.get_unconstrained_tasks();
         let mut sorted_uncon_ids: Vec<&u32> = uncon_ids.iter().collect();
         sorted_uncon_ids.sort_by(|a, b| a.cmp(b));
-        let mut uncon_tagged = Vec::new();
+        let mut uncon_names = Vec::new();
         for id in uncon_ids {
             let name = self.tn.get_task(id).borrow().get_name();
-            uncon_tagged.push(format!("{}:{}", id, name));
+            uncon_names.push(name);
         }
-        format!("uncon={:?} state={}", uncon_tagged, state)
+
+        format!("uncon={:?} state={:?}", uncon_names, state_names)
     }
 
-    pub fn to_string_path(&self) -> String {
-        let our_part = self.to_string();
+    pub fn to_string_path(&self, problem: &FONDProblem) -> String {
+        let our_part = self.to_string(problem);
         if let Some(node) = self.parent.clone() {
-            node.borrow().to_string_path() + "\n" + &our_part
+            node.borrow().to_string_path(problem) + "\n" + &our_part
         } else {
             our_part
         }

@@ -7,7 +7,7 @@ use search_graph::*;
 use search_node::*;
 use std::{
     cell::RefCell,
-    collections::{HashMap, HashSet},
+    collections::{BTreeMap, HashMap, HashSet},
     rc::Rc,
     string,
 };
@@ -22,11 +22,8 @@ pub struct SearchSpace {
 }
 
 impl SearchSpace {
-    pub fn new(initial_search_node: (HTN, HashSet<u32>)) -> SearchSpace {
-        let node = Rc::new(RefCell::new(SearchNode::new(
-            initial_search_node.0,
-            initial_search_node.1,
-        )));
+    pub fn new(init_tn: HTN, init_state: HashSet<u32>) -> SearchSpace {
+        let node = Rc::new(RefCell::new(SearchNode::new(init_tn, init_state)));
         node.borrow_mut().status = AStarStatus::Open;
         let buckets = HashMap::from([(node.borrow().maybe_isomorphic_hash(), vec![node.clone()])]);
         SearchSpace {
@@ -88,9 +85,50 @@ impl SearchSpace {
         }
     }
 
-    pub fn to_string(&self) -> String {
-        // TODO
-        String::from("")
+    pub fn to_string(&self, problem: &FONDProblem) -> String {
+        let mut node_number = 0;
+        SearchSpace::to_string_helper(
+            problem,
+            self.initial_search_node.clone(),
+            &mut BTreeMap::new(),
+            String::from(""),
+            &mut node_number,
+        )
+    }
+
+    pub fn to_string_helper(
+        problem: &FONDProblem,
+        current: Rc<RefCell<SearchNode>>,
+        visited: &mut BTreeMap<Rc<RefCell<SearchNode>>, u32>,
+        indentation: String,
+        node_number: &mut u32,
+    ) -> String {
+        let lookup = visited.get(&current);
+        if let Some(prev_number) = lookup {
+            return format!("{}GOTO NODE_{}", indentation, *prev_number);
+        }
+        *node_number += 1;
+        visited.insert(current.clone(), *node_number);
+        let mut result = format!(
+            "{}NODE_{} {}",
+            indentation,
+            *node_number,
+            current.borrow().to_string(problem)
+        );
+        for edge in current.borrow().progressions.iter() {
+            result = format!(
+                "{}\n{}",
+                result,
+                SearchSpace::to_string_helper(
+                    problem,
+                    edge.next_node.clone(),
+                    visited,
+                    format!("{}|  ", indentation),
+                    node_number
+                )
+            );
+        }
+        return result;
     }
 }
 
