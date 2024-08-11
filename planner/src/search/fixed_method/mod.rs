@@ -44,7 +44,7 @@ pub fn a_star_search(
         }
         space.install_successors(parent.clone(), successor_fn(parent.clone()));
         'improve: for edge in parent.borrow().progressions.iter() {
-            {
+            { // succ_ref lifetime
                 let mut succ_ref = edge.next_node.borrow_mut();
                 match succ_ref.status {
                     AStarStatus::Open => {
@@ -75,7 +75,8 @@ pub fn a_star_search(
                         (*succ_ref).status = AStarStatus::Open;
                     }
                 }
-            }
+            } // succ_ref lifetime
+
             // Remove and re-insert to maintain ordering, since f value changed
             if open.contains(&edge.next_node.clone()) {
                 open.remove(&edge.next_node.clone());

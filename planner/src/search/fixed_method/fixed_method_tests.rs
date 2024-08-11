@@ -61,6 +61,6 @@ pub fn weak_ld_problem_1() {
     );
     println!("\nPLAN\n");
     println!("{}", plan.unwrap());
-    println!("\nSPACE\n");
+    println!("\nSEARCH SPACE\n");
     println!("{}", space.to_string(&problem));
 }
