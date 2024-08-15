@@ -56,14 +56,34 @@ impl PriorityQueue {
     }
 
     fn remove(&mut self, search_node: Rc<RefCell<SearchNode>>) {
+        let mut bucket_empty = false;
         let key = OrderedFloat(search_node.borrow().f_value());
         if let Some(bucket) = self.map.get_mut(&key) {
             // Retain elements which are not pointer-equal to this search node
             bucket.retain(|x| !Rc::ptr_eq(x, &search_node));
+            bucket_empty = bucket.is_empty();
+        }
+        // Can't have any empty buckets, since the pop_least function assumes the invariant that
+        // all buckets contain at least 1 search node
+        if bucket_empty {
+            self.map.remove(&key);
         }
     }
 
     fn pop_least(&mut self) -> Option<Rc<RefCell<SearchNode>>> {
-        todo!();
+        let mut min_key = None;
+        let mut bucket_empty = false;
+        let mut ret = None;
+        if let Some((key, bucket)) = self.map.iter_mut().next() {
+            min_key = Some(key);
+            ret = Some(bucket.pop().expect(
+                "No bucket should be empty in the priority queue"
+            ));
+            bucket_empty = bucket.is_empty();
+        }
+        if bucket_empty {
+            self.map.remove(&min_key.expect("No min key found"))
+        }
+        ret
     }
 }
