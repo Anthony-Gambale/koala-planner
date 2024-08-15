@@ -7,13 +7,15 @@ use search_graph::*;
 use search_node::*;
 use search_space::SearchSpace;
 use std::{
-    cell::RefCell, collections::{BTreeSet, HashMap, HashSet}, iter::successors, rc::Rc, string
+    cell::RefCell, collections::{BTreeMap, BTreeSet, HashMap, HashSet}, iter::successors, rc::Rc, string
 };
 
 mod fixed_method_tests;
 mod goal_checks;
 mod search_node;
 mod search_space;
+mod priority_queue;
+
 
 pub fn a_star_search(
     problem: &FONDProblem,
