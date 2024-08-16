@@ -80,7 +80,7 @@ impl SearchNode {
             uncon_names.push(name);
         }
 
-        format!("uncon={:?} state={:?}", state_names, uncon_names)
+        format!("state={:?} uncon={:?}", state_names, uncon_names)
     }
 
     pub fn to_string_path(&self, problem: &FONDProblem) -> String {
