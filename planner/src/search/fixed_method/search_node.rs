@@ -10,6 +10,8 @@ use std::{
     rc::Rc,
     string,
 };
+
+#[derive (PartialEq, Eq)]
 pub enum AStarStatus {
     Closed,
     Open,
