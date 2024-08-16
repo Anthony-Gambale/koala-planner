@@ -13,7 +13,8 @@ use super::*;
  * heuristic value should never be NaN, we may panic in those scenarios.
  * TODO: Consider using the ordered-float crate instead.
  */
-struct OrderedFloat(f32);
+#[derive(Clone, Copy)]
+ struct OrderedFloat(f32);
 impl Ord for OrderedFloat {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         assert!(!self.0.is_nan() && !other.0.is_nan(), "NaN values are not allowed");
@@ -34,19 +35,19 @@ impl PartialEq for OrderedFloat {
 }
 impl Eq for OrderedFloat {}
 
-struct PriorityQueue {
+pub struct PriorityQueue {
     // Given a particular f score (key) store all nodes with this f score (vector)
     map: BTreeMap<OrderedFloat, Vec<Rc<RefCell<SearchNode>>>>,
 }
 
 impl PriorityQueue {
-    fn new() -> Self {
+    pub fn new() -> Self {
         PriorityQueue {
             map: BTreeMap::new(),
         }
     }
 
-    fn insert(&mut self, search_node: Rc<RefCell<SearchNode>>) {
+    pub fn insert(&mut self, search_node: Rc<RefCell<SearchNode>>) {
         let key = OrderedFloat(search_node.borrow().f_value());
         if let Some(bucket) = self.map.get_mut(&key) {
             bucket.push(search_node.clone());
@@ -55,7 +56,7 @@ impl PriorityQueue {
         }
     }
 
-    fn remove(&mut self, search_node: Rc<RefCell<SearchNode>>) {
+    pub fn remove(&mut self, search_node: Rc<RefCell<SearchNode>>) {
         let mut bucket_empty = false;
         let key = OrderedFloat(search_node.borrow().f_value());
         if let Some(bucket) = self.map.get_mut(&key) {
@@ -63,27 +64,25 @@ impl PriorityQueue {
             bucket.retain(|x| !Rc::ptr_eq(x, &search_node));
             bucket_empty = bucket.is_empty();
         }
-        // Can't have any empty buckets, since the pop_least function assumes the invariant that
+        // Can't have any empty buckets, since the pop_least function relies on the assumption that
         // all buckets contain at least 1 search node
         if bucket_empty {
             self.map.remove(&key);
         }
     }
 
-    fn pop_least(&mut self) -> Option<Rc<RefCell<SearchNode>>> {
-        let mut min_key = None;
-        let mut bucket_empty = false;
-        let mut ret = None;
-        if let Some((key, bucket)) = self.map.iter_mut().next() {
-            min_key = Some(key);
-            ret = Some(bucket.pop().expect(
-                "No bucket should be empty in the priority queue"
-            ));
-            bucket_empty = bucket.is_empty();
+    pub fn pop_least(&mut self) -> Option<Rc<RefCell<SearchNode>>> {
+        if let Some((&key, bucket)) = self.map.iter_mut().next() {
+            // We may assume every bucket is non-empty
+            let node = bucket.pop().unwrap();
+            // If the bucket becomes empty, remove the whole entry. This is necessary since this
+            // function relies on the assumption that all buckets are non-empty
+            if bucket.is_empty() {
+                self.map.remove(&key);
+            }
+            Some(node)
+        } else {
+            None
         }
-        if bucket_empty {
-            self.map.remove(&min_key.expect("No min key found"))
-        }
-        ret
     }
 }
