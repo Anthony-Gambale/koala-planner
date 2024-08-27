@@ -77,7 +77,7 @@ impl SearchNode {
         let mut uncon_names = Vec::new();
         for id in uncon_ids {
             let name = self.tn.get_task(id).borrow().get_name();
-            uncon_names.push(name);
+            uncon_names.push(format!("{}:{}", name, id));
         }
 
         format!("state={:?} uncon={:?}", state_names, uncon_names)
