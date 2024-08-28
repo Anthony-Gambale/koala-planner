@@ -107,6 +107,15 @@ impl SearchNode {
             panic!("Cannot compute f value of a node unless both g and h have been instantiated.")
         }
     }
+
+    pub fn find_edge(&self, child: &Rc<RefCell<SearchNode>>) -> &Edge {
+        for edge in &self.progressions {
+            if Rc::ptr_eq(&edge.next_node, child) {
+                return edge;
+            }
+        }
+        panic!("This function should never be called unless self == child.parent");
+    }
 }
 
 impl Ord for SearchNode {
