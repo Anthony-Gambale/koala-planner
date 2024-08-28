@@ -18,6 +18,7 @@ pub enum AStarStatus {
     New,
 }
 pub struct Edge {
+    pub task_id: u32,
     pub task_name: String,
     pub method_name: Option<String>,
     pub next_node: Rc<RefCell<SearchNode>>,
@@ -143,7 +144,7 @@ impl PartialEq for SearchNode {
 pub fn get_successors_systematic(
     space: &mut SearchSpace,
     node: Rc<RefCell<SearchNode>>,
-) -> Vec<(String, Option<String>, SearchNode)> {
+) -> Vec<(u32, String, Option<String>, SearchNode)> {
     let mut result = vec![];
 
     let unconstrained = node.borrow().tn.get_unconstrained_tasks();
@@ -156,7 +157,7 @@ pub fn get_successors_systematic(
                 let new_tn = node.borrow().tn.decompose(*id, method);
                 space.next_node_id += 1;
                 let node = SearchNode::new(space.next_node_id, new_tn, node.borrow().state.clone());
-                result.push((cmp.name.clone(), Some(method.name.clone()), node));
+                result.push((*id, cmp.name.clone(), Some(method.name.clone()), node));
             }
         }
     }
@@ -177,7 +178,7 @@ pub fn get_successors_systematic(
             for outcome in outcomes {
                 space.next_node_id += 1;
                 let node = SearchNode::new(space.next_node_id, new_tn.clone(), outcome);
-                result.push((act.name.clone(), None, node));
+                result.push((*prim, act.name.clone(), None, node));
             }
         }
     }
