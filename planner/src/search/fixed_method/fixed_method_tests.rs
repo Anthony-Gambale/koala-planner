@@ -115,14 +115,14 @@ pub fn weak_ld_problem_2() {
 #[test]
 pub fn test_deordering() {
     // actions
-    let a1 = String::from("A1");
-    let a3 = String::from("A3");
-    let a5 = String::from("A5");
-    let a6 = String::from("A6"); // same action as a3
+    let a1 = String::from("A");
+    let a3 = String::from("B");
+    let a5 = String::from("C");
+    let a6 = String::from("B"); // same action as a3
     // compound names
     let init = String::from("init");
-    let c2 = String::from("C2");
-    let c4 = String::from("C4");
+    let c2 = String::from("COMPOUND1");
+    let c4 = String::from("COMPOUND2");
     // method names
     let minit = String::from("minit");
     let m1 = String::from("m1");
