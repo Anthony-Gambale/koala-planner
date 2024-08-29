@@ -25,7 +25,7 @@ pub fn a_star_search(
     // Using constant function for now
     edge_weight_fn: fn() -> f32,
     goal_check_fn: fn(&FONDProblem, Rc<RefCell<SearchNode>>) -> bool,
-) -> (SearchSpace, Option<String>) {
+) -> (SearchSpace, Option<Rc<RefCell<SearchNode>>>) {
 
     let mut space = SearchSpace::new(problem.init_tn.clone(), problem.initial_state.clone());
     space
@@ -42,7 +42,7 @@ pub fn a_star_search(
         if goal_check_fn(problem, parent.clone()) {
             return (
                 space,
-                Some(parent.borrow().to_string_path(problem)),
+                Some(parent.clone()),
             );
         }
         let successors = successor_fn(&mut space, parent.clone());

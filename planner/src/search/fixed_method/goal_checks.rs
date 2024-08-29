@@ -59,6 +59,7 @@ pub fn deorder(leaf_node: Rc<RefCell<SearchNode>>) -> HTN {
 
             match &edge.method_name {
                 Some(name) => {
+                    // println!("[CREATING COMPOUND ORDERING SET AT] {}", old_id);
                     compound_mapping.insert(old_id, Vec::new());
                     // iterate over them, check their type; if primitive, map to new ID and insert; if compound, insert with Old ID
                     let mut child_set: HashSet<OldID> = child.borrow().tn.get_task_id_set();
@@ -80,10 +81,15 @@ pub fn deorder(leaf_node: Rc<RefCell<SearchNode>>) -> HTN {
                     let new_id: NewID = next_new_id;
                     next_new_id += 1;
                     tasks.insert(new_id);
+                    // println!("[NEW TASK] {}", new_id);
                     alpha.insert(new_id, *parent_node.tn.mappings.get(&old_id).unwrap());
+                    equivalent_ids.insert(old_id, new_id);
+                    // println!("[MAPPING] {} -> {}", old_id, new_id);
                     for greater in parent_node.tn.get_outgoing_edges(old_id) {
                         match *parent_node.tn.get_task(greater).borrow() {
                             Task::Primitive(_) => {
+                                // error at this unwrap
+                                // println!("[INSERT ORDERING] {} < {}", new_id, *equivalent_ids.get(&greater).unwrap());
                                 orderings.push((new_id, *equivalent_ids.get(&greater).unwrap()));
                             }
                             Task::Compound(_) => {
@@ -107,10 +113,17 @@ fn rec_hlpr(
     predecessor_id: NewID,
     compound_task: OldID,
 ) {
+    // println!("[INSERT ORDERING COMPOUND BEGIN] {} < x for all x bound by {}", predecessor_id, compound_task);
     for task in compound_mapping.get(&compound_task).unwrap() {
         match task {
-            TaggedTask::Primitive(id) => orderings.push((predecessor_id, *id)),
-            TaggedTask::Compound(id) => rec_hlpr(orderings, compound_mapping, *id, predecessor_id),
+            TaggedTask::Primitive(id) => {
+                // println!("[INSERT ORDERING] {} < {}", predecessor_id, *id);
+                orderings.push((predecessor_id, *id));
+            },
+            TaggedTask::Compound(id) => {
+                rec_hlpr(orderings, compound_mapping, predecessor_id, *id)
+            }
         }
     }
+    // println!("[INSERT ORDERING COMPOUND END]")
 }
