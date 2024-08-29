@@ -21,7 +21,7 @@ mod priority_queue;
 pub fn a_star_search(
     problem: &FONDProblem,
     heuristic_fn: fn(&FONDProblem, &HashSet<u32>, &HTN) -> f32,
-    successor_fn: fn(&mut SearchSpace, Rc<RefCell<SearchNode>>) -> Vec<(String, Option<String>, SearchNode)>,
+    successor_fn: fn(&mut SearchSpace, Rc<RefCell<SearchNode>>) -> Vec<(u32, String, Option<String>, SearchNode)>,
     // Using constant function for now
     edge_weight_fn: fn() -> f32,
     goal_check_fn: fn(&FONDProblem, Rc<RefCell<SearchNode>>) -> bool,

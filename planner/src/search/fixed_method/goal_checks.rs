@@ -51,23 +51,49 @@ pub fn deorder(leaf_node: Rc<RefCell<SearchNode>>) -> HTN {
 
     while parent != None {
         let parent_unwrap = parent.unwrap();
-        { // parent_node lifetime
+        {
+            // parent_node lifetime
             let parent_node = parent_unwrap.borrow();
-
-            // get edge
             let edge: &Edge = parent_node.find_edge(&child);
+            let old_id: OldID = edge.task_id;
 
             match &edge.method_name {
                 Some(name) => {
-                    todo!();
-                },
+                    compound_mapping.insert(old_id, Vec::new());
+                    // iterate over them, check their type; if primitive, map to new ID and insert; if compound, insert with Old ID
+                    let mut child_set: HashSet<OldID> = child.borrow().tn.get_task_id_set();
+                    let parent_set: HashSet<OldID> = parent_node.tn.get_task_id_set();
+                    let method_tasks: HashSet<OldID> =
+                        child_set.difference(&parent_set).cloned().collect();
+                    for method_task in method_tasks {
+                        match *child.borrow().tn.get_task(method_task).borrow() {
+                            Task::Primitive(_) => compound_mapping.get_mut(&old_id).unwrap().push(
+                                TaggedTask::Primitive(*equivalent_ids.get(&method_task).unwrap()),
+                            ),
+                            Task::Compound(_) => compound_mapping.get_mut(&old_id).unwrap().push(
+                                TaggedTask::Compound(method_task)
+                            )
+                        }
+                    }
+                }
                 None => {
                     let new_id: NewID = next_new_id;
                     next_new_id += 1;
-                },
+                    tasks.insert(new_id);
+                    alpha.insert(new_id, *parent_node.tn.mappings.get(&old_id).unwrap());
+                    for greater in parent_node.tn.get_outgoing_edges(old_id) {
+                        match *parent_node.tn.get_task(greater).borrow() {
+                            Task::Primitive(_) => {
+                                orderings.push((new_id, *equivalent_ids.get(&greater).unwrap()));
+                            }
+                            Task::Compound(_) => {
+                                rec_hlpr(&mut orderings, &compound_mapping, new_id, greater);
+                            }
+                        }
+                    }
+                }
             }
         } // parent_node lifetime
-        // move on to next step
         child = parent_unwrap;
         parent = child.borrow().parent.clone();
     }
@@ -78,8 +104,8 @@ pub fn deorder(leaf_node: Rc<RefCell<SearchNode>>) -> HTN {
 fn rec_hlpr(
     orderings: &mut Vec<(NewID, NewID)>,
     compound_mapping: &HashMap<OldID, Vec<TaggedTask>>,
-    compound_task: OldID,
     predecessor_id: NewID,
+    compound_task: OldID,
 ) {
     for task in compound_mapping.get(&compound_task).unwrap() {
         match task {
