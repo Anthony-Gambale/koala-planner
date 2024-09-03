@@ -44,7 +44,7 @@ pub fn weak_ld_problem_1() {
         HashSet::new(),
         String::from("comp_init"),
     );
-    let (solution, space, goal_node) = a_star_search(
+    let (solution, statistics) = a_star_search(
         &problem,
         |x, y, z| 0.0,
         get_successors_systematic,
@@ -57,8 +57,8 @@ pub fn weak_ld_problem_1() {
     } else {
         println!("NO SOLUTION");
     }
-    println!("\nSEARCH SPACE\n");
-    println!("{}", space.to_string(&problem));
+    println!("\nSEARCH SPACE explored:{} total:{}\n", statistics.space.explored_nodes, statistics.space.total_nodes);
+    println!("{}", statistics.space.to_string(&problem));
 }
 
 #[cfg(test)]
@@ -105,7 +105,7 @@ pub fn weak_ld_problem_2() {
         HashSet::from([f1.clone(), f2.clone()]),
         String::from("init"),
     );
-    let (solution, space, goal_node) = a_star_search(
+    let (solution, statistics) = a_star_search(
         &problem,
         |x, y, z| 0.0,
         get_successors_systematic,
@@ -118,8 +118,8 @@ pub fn weak_ld_problem_2() {
     } else {
         println!("NO SOLUTION");
     }
-    println!("\nSEARCH SPACE\n");
-    println!("{}", space.to_string(&problem));
+    println!("\nSEARCH SPACE explored:{} total:{}\n", statistics.space.explored_nodes, statistics.space.total_nodes);
+    println!("{}", statistics.space.to_string(&problem));
 }
 
 #[cfg(test)]
@@ -168,7 +168,7 @@ pub fn test_deordering() {
         HashSet::new(),
         init.clone()
     );
-    let (solution, space, goal_node) = a_star_search(
+    let (solution, statistics) = a_star_search(
         &problem,
         |x, y, z| 0.0,
         get_successors_systematic,
@@ -176,7 +176,7 @@ pub fn test_deordering() {
         is_goal_weak_ld,
     );
     println!("\nPLAN\n");
-    let goal = goal_node.unwrap();
+    let goal = statistics.goal_node.unwrap();
     if let AStarResult::Linear(lin) = solution {
         println!("{}", lin.to_string(&problem));
     } else {
@@ -239,7 +239,7 @@ pub fn test_deordering2() {
         HashSet::new(),
         init.clone()
     );
-    let (solution, space, goal_node) = a_star_search(
+    let (solution, statistics) = a_star_search(
         &problem,
         |x, y, z| 0.0,
         get_successors_systematic,
@@ -247,7 +247,7 @@ pub fn test_deordering2() {
         is_goal_weak_ld,
     );
     println!("\nPLAN\n");
-    let goal = goal_node.unwrap();
+    let goal = statistics.goal_node.unwrap();
     if let AStarResult::Linear(lin) = solution {
         println!("{}", lin.to_string(&problem));
     } else {
@@ -320,7 +320,7 @@ fn test_deordering3() {
         HashSet::new(),
         init.clone()
     );
-    let (solution, space, goal_node) = a_star_search(
+    let (solution, statistics) = a_star_search(
         &problem,
         |x, y, z| 0.0,
         get_successors_systematic,
@@ -328,9 +328,9 @@ fn test_deordering3() {
         is_goal_weak_ld,
     );
     println!("\nSPACE\n");
-    println!("{}", space.to_string(&problem));
+    println!("{}", statistics.space.to_string(&problem));
     println!("\nPLAN\n");
-    let goal = goal_node.unwrap();
+    let goal = statistics.goal_node.unwrap();
     if let AStarResult::Linear(lin) = solution {
         println!("{}", lin.to_string(&problem));
     } else {

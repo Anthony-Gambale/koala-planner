@@ -20,6 +20,8 @@ pub struct SearchSpace {
     pub maybe_isomorphic_buckets: HashMap<u32, Vec<Rc<RefCell<SearchNode>>>>,
     pub initial_search_node: Rc<RefCell<SearchNode>>,
     pub next_node_id: u32,
+    pub explored_nodes: u32,
+    pub total_nodes: u32,
 }
 
 impl SearchSpace {
@@ -31,6 +33,8 @@ impl SearchSpace {
             maybe_isomorphic_buckets: buckets,
             initial_search_node: node,
             next_node_id: 0,
+            explored_nodes: 0,
+            total_nodes: 1,
         }
     }
 
@@ -55,6 +59,7 @@ impl SearchSpace {
                     }
                     None => {
                         // No isomorphic node, add this to the bucket
+                        self.total_nodes += 1;
                         let ret = Rc::new(RefCell::new(new_node));
                         bucket.push(ret.clone());
                         ret
@@ -63,6 +68,7 @@ impl SearchSpace {
             }
             None => {
                 // No bucket exists for this hash, so make one
+                self.total_nodes += 1;
                 let ret = Rc::new(RefCell::new(new_node));
                 self.maybe_isomorphic_buckets
                     .insert(hash, vec![ret.clone()]);
