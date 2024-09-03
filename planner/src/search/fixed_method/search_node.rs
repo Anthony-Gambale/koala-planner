@@ -1,9 +1,10 @@
+use search_space::SearchSpace;
+
 use super::*;
 use crate::{
     domain_description::{ClassicalDomain, DomainTasks, FONDProblem},
-    task_network::Method,
+    task_network::{Applicability, Method, Task, HTN},
 };
-use search_graph::*;
 use std::{
     cell::RefCell,
     collections::{BTreeMap, HashMap, HashSet},
@@ -63,8 +64,12 @@ impl SearchNode {
     }
 
     pub fn to_string(&self, problem: &FONDProblem) -> String {
+        SearchNode::to_string_structure(&self.state, &self.tn, problem)
+    }
+
+    pub fn to_string_structure(state: &HashSet<u32>, tn: &HTN, problem: &FONDProblem) -> String {
         // Sorting is needed so order is predictable (for tests to pass)
-        let mut sorted_state: Vec<&u32> = self.state.iter().collect();
+        let mut sorted_state: Vec<&u32> = state.iter().collect();
         sorted_state.sort_by(|a, b| a.cmp(b));
         let mut state_names = Vec::new();
         for id in sorted_state {
@@ -72,25 +77,16 @@ impl SearchNode {
             state_names.push(name);
         }
 
-        let uncon_ids = self.tn.get_unconstrained_tasks();
+        let uncon_ids = tn.get_unconstrained_tasks();
         let mut sorted_uncon_ids: Vec<&u32> = uncon_ids.iter().collect();
         sorted_uncon_ids.sort_by(|a, b| a.cmp(b));
         let mut uncon_names = Vec::new();
         for id in uncon_ids {
-            let name = self.tn.get_task(id).borrow().get_name();
+            let name = tn.get_task(id).borrow().get_name();
             uncon_names.push(format!("{}:{}", name, id));
         }
 
         format!("state={:?} uncon={:?}", state_names, uncon_names)
-    }
-
-    pub fn to_string_path(&self, problem: &FONDProblem) -> String {
-        let our_part = self.to_string(problem);
-        if let Some(node) = self.parent.clone() {
-            node.borrow().to_string_path(problem) + "\n" + &our_part
-        } else {
-            our_part
-        }
     }
 
     pub fn compute_h_value(

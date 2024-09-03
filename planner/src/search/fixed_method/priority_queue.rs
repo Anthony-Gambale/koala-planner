@@ -4,6 +4,8 @@ use std::{
     rc::Rc,
     string,
 };
+use search_node::SearchNode;
+
 use crate::heuristics;
 
 use super::*;

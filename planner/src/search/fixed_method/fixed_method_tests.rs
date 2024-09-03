@@ -1,10 +1,13 @@
 use crate::domain_description::Facts;
+use crate::domain_description::FONDProblem;
+use search_node::get_successors_systematic;
 use goal_checks::*;
 use super::*;
 use std::{
     borrow::BorrowMut,
     collections::{BTreeSet, HashMap, HashSet}, vec,
 };
+use astar::{a_star_search, AStarResult};
 
 #[cfg(test)]
 #[test]
@@ -41,7 +44,7 @@ pub fn weak_ld_problem_1() {
         HashSet::new(),
         String::from("comp_init"),
     );
-    let (space, goal_node) = a_star_search(
+    let (solution, space, goal_node) = a_star_search(
         &problem,
         |x, y, z| 0.0,
         get_successors_systematic,
@@ -49,7 +52,11 @@ pub fn weak_ld_problem_1() {
         is_goal_weak_ld,
     );
     println!("\nPLAN\n");
-    println!("{}", goal_node.unwrap().borrow().to_string_path(&problem));
+    if let AStarResult::Linear(lin) = solution {
+        println!("{}", lin.to_string(&problem));
+    } else {
+        println!("NO SOLUTION");
+    }
     println!("\nSEARCH SPACE\n");
     println!("{}", space.to_string(&problem));
 }
@@ -98,7 +105,7 @@ pub fn weak_ld_problem_2() {
         HashSet::from([f1.clone(), f2.clone()]),
         String::from("init"),
     );
-    let (space, goal_node) = a_star_search(
+    let (solution, space, goal_node) = a_star_search(
         &problem,
         |x, y, z| 0.0,
         get_successors_systematic,
@@ -106,7 +113,11 @@ pub fn weak_ld_problem_2() {
         is_goal_weak_ld,
     );
     println!("\nPLAN\n");
-    println!("{}", goal_node.unwrap().borrow().to_string_path(&problem));
+    if let AStarResult::Linear(lin) = solution {
+        println!("{}", lin.to_string(&problem));
+    } else {
+        println!("NO SOLUTION");
+    }
     println!("\nSEARCH SPACE\n");
     println!("{}", space.to_string(&problem));
 }
@@ -157,7 +168,7 @@ pub fn test_deordering() {
         HashSet::new(),
         init.clone()
     );
-    let (space, goal_node) = a_star_search(
+    let (solution, space, goal_node) = a_star_search(
         &problem,
         |x, y, z| 0.0,
         get_successors_systematic,
@@ -166,7 +177,11 @@ pub fn test_deordering() {
     );
     println!("\nPLAN\n");
     let goal = goal_node.unwrap();
-    println!("{}", goal.clone().borrow().to_string_path(&problem));
+    if let AStarResult::Linear(lin) = solution {
+        println!("{}", lin.to_string(&problem));
+    } else {
+        println!("NO SOLUTION");
+    }
     println!("\nDE-ORDERED TASK NETWORK\n");
     let de = deorder(goal);
     for (k, v) in de.get_orderings() {
@@ -224,7 +239,7 @@ pub fn test_deordering2() {
         HashSet::new(),
         init.clone()
     );
-    let (space, goal_node) = a_star_search(
+    let (solution, space, goal_node) = a_star_search(
         &problem,
         |x, y, z| 0.0,
         get_successors_systematic,
@@ -233,7 +248,11 @@ pub fn test_deordering2() {
     );
     println!("\nPLAN\n");
     let goal = goal_node.unwrap();
-    println!("{}", goal.clone().borrow().to_string_path(&problem));
+    if let AStarResult::Linear(lin) = solution {
+        println!("{}", lin.to_string(&problem));
+    } else {
+        println!("NO SOLUTION");
+    }
     println!("\nDE-ORDERED TASK NETWORK\n");
     let de = deorder(goal);
     for (k, v) in de.get_orderings() {
@@ -301,7 +320,7 @@ fn test_deordering3() {
         HashSet::new(),
         init.clone()
     );
-    let (space, goal_node) = a_star_search(
+    let (solution, space, goal_node) = a_star_search(
         &problem,
         |x, y, z| 0.0,
         get_successors_systematic,
@@ -312,7 +331,11 @@ fn test_deordering3() {
     println!("{}", space.to_string(&problem));
     println!("\nPLAN\n");
     let goal = goal_node.unwrap();
-    println!("{}", goal.clone().borrow().to_string_path(&problem));
+    if let AStarResult::Linear(lin) = solution {
+        println!("{}", lin.to_string(&problem));
+    } else {
+        println!("NO SOLUTION");
+    }
     println!("\nDE-ORDERED TASK NETWORK\n");
     let de = deorder(goal);
     for (k, v) in de.get_orderings() {

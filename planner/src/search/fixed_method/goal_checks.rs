@@ -1,19 +1,31 @@
+use astar::AStarResult;
+use search_node::{Edge, SearchNode};
+use weak_linearization::WeakLinearization;
+
 use super::*;
 use crate::{
-    domain_description::{ClassicalDomain, DomainTasks, FONDProblem},
-    task_network::Method,
+    domain_description::{ClassicalDomain, DomainTasks, FONDProblem, Facts},
+    search::{AOStarSearch, HeuristicType, NodeStatus, SearchResult, StrongPolicy},
+    task_network::{Method, Task, HTN},
 };
-use search_graph::*;
-use search_node::*;
 use std::{
     cell::RefCell,
-    collections::{HashMap, HashSet},
+    collections::{BTreeSet, HashMap, HashSet},
     rc::Rc,
     string,
 };
 
-pub fn is_goal_weak_ld(problem: &FONDProblem, leaf_node: Rc<RefCell<SearchNode>>) -> bool {
-    leaf_node.borrow().tn.is_empty()
+pub fn is_goal_weak_ld(
+    problem: &FONDProblem,
+    leaf_node: Rc<RefCell<SearchNode>>,
+) -> AStarResult {
+    if leaf_node.borrow().tn.is_empty() {
+        let mut lin = WeakLinearization::new();
+        lin.build(leaf_node.clone());
+        return AStarResult::Linear(lin);
+    } else {
+        return AStarResult::NoSolution;
+    }
 }
 
 type NewID = u32; // ID of a task in the new HTN which we are building
@@ -25,12 +37,29 @@ pub enum TaggedTask {
     Compound(OldID),
 }
 
-pub fn is_goal_strong_od(problem: &FONDProblem, leaf_node: Rc<RefCell<SearchNode>>) -> bool {
-    if !is_goal_weak_ld(problem, leaf_node.clone()) {
-        return false;
+pub fn is_goal_strong_od(
+    problem: &FONDProblem,
+    leaf_node: Rc<RefCell<SearchNode>>,
+) -> Option<StrongPolicy> {
+    if !leaf_node.clone().borrow().tn.is_empty() {
+        return None;
     }
 
-    return true;
+    // construct new FONDProblem for the AO* subproblem
+    let sub_problem = FONDProblem {
+        facts: problem.facts.clone(),
+        tasks: problem.tasks.clone(),
+        initial_state: leaf_node.borrow().state.clone(),
+        init_tn: deorder(leaf_node.clone()),
+    };
+
+    // call AO* algorithm
+    let (solution, stats) = AOStarSearch::run(&sub_problem, HeuristicType::HAdd);
+
+    match solution {
+        SearchResult::Success(policy) => Some(policy),
+        SearchResult::NoSolution => None,
+    }
 }
 
 pub fn deorder(leaf_node: Rc<RefCell<SearchNode>>) -> HTN {
@@ -71,9 +100,10 @@ pub fn deorder(leaf_node: Rc<RefCell<SearchNode>>) -> HTN {
                             Task::Primitive(_) => compound_mapping.get_mut(&old_id).unwrap().push(
                                 TaggedTask::Primitive(*equivalent_ids.get(&method_task).unwrap()),
                             ),
-                            Task::Compound(_) => compound_mapping.get_mut(&old_id).unwrap().push(
-                                TaggedTask::Compound(method_task)
-                            )
+                            Task::Compound(_) => compound_mapping
+                                .get_mut(&old_id)
+                                .unwrap()
+                                .push(TaggedTask::Compound(method_task)),
                         }
                     }
                 }
@@ -113,17 +143,13 @@ fn rec_hlpr(
     predecessor_id: NewID,
     compound_task: OldID,
 ) {
-    // println!("[INSERT ORDERING COMPOUND BEGIN] {} < x for all x bound by {}", predecessor_id, compound_task);
     for task in compound_mapping.get(&compound_task).unwrap() {
         match task {
             TaggedTask::Primitive(id) => {
                 // println!("[INSERT ORDERING] {} < {}", predecessor_id, *id);
                 orderings.push((predecessor_id, *id));
-            },
-            TaggedTask::Compound(id) => {
-                rec_hlpr(orderings, compound_mapping, predecessor_id, *id)
             }
+            TaggedTask::Compound(id) => rec_hlpr(orderings, compound_mapping, predecessor_id, *id),
         }
     }
-    // println!("[INSERT ORDERING COMPOUND END]")
 }

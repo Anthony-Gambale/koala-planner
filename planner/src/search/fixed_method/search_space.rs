@@ -1,10 +1,10 @@
+use search_node::{AStarStatus, Edge, SearchNode};
+
 use super::*;
 use crate::{
     domain_description::{ClassicalDomain, DomainTasks, FONDProblem, Facts},
-    task_network::Method,
+    task_network::{Method, HTN},
 };
-use search_graph::*;
-use search_node::*;
 use std::{
     cell::RefCell,
     collections::{HashMap, HashSet},
@@ -133,9 +133,4 @@ impl SearchSpace {
         }
         return result;
     }
-}
-
-pub fn search_result_weak_ld(problem: &FONDProblem, facts: &Facts) -> StrongPolicy {
-    // TODO
-    panic!();
 }
