@@ -244,3 +244,82 @@ pub fn test_deordering2() {
         println!("{} < {}", kprime, vprime);
     }
 }
+
+#[cfg(test)]
+#[test]
+fn test_deordering3() {
+    // primitive names
+    let a = String::from("a");
+    let b = String::from("b");
+    let noop = String::from("noop");
+    // compound names
+    let t = String::from("t");
+    let init = String::from("init");
+    // fact names
+    let f1 = String::from("f1");
+    let f2 = String::from("f2");
+    let f3 = String::from("f3");
+    // method names
+    let m1 = String::from("m1");
+    let m2 = String::from("m2");
+    let minit = String::from("minit");
+    // fond problem
+    let problem = FONDProblem::new(
+        vec![f1.clone(), f2.clone(), f3.clone()],
+        vec![
+            (
+                a.clone(), vec![], vec![
+                    (vec![f1.clone()], vec![]),
+                    (vec![f2.clone()], vec![]),
+                    (vec![f3.clone()], vec![])
+                ]
+            ),
+            (
+                b.clone(), vec![f1.clone(), f2.clone(), f3.clone()], vec![(vec![], vec![])]
+            ),
+            (
+                noop.clone(), vec![], vec![(vec![], vec![])]
+            )
+        ],
+        vec![
+            (
+                minit.clone(), init.clone(),
+                vec![t.clone(), b.clone()],
+                vec![(0,1)]
+            ),
+            (
+                m1.clone(), t.clone(),
+                vec![a.clone(), t.clone()],
+                vec![(0,1)]
+            ),
+            (
+                m2.clone(), t.clone(),
+                vec![noop.clone()], vec![]
+            )
+        ],
+        vec![init.clone(), t.clone()],
+        HashSet::new(),
+        init.clone()
+    );
+    let (space, goal_node) = a_star_search(
+        &problem,
+        |x, y, z| 0.0,
+        get_successors_systematic,
+        || 1.0,
+        is_goal_weak_ld,
+    );
+    println!("\nSPACE\n");
+    println!("{}", space.to_string(&problem));
+    println!("\nPLAN\n");
+    let goal = goal_node.unwrap();
+    println!("{}", goal.clone().borrow().to_string_path(&problem));
+    println!("\nDE-ORDERED TASK NETWORK\n");
+    let de = deorder(goal);
+    for (k, v) in de.get_orderings() {
+        let kstring: String = de.get_task(k).borrow().get_name();
+        let vstring: String = de.get_task(v).borrow().get_name();
+        let kprime = format!("{}:{}", kstring, k);
+        let vprime = format!("{}:{}", vstring, v);
+        println!("{} < {}", kprime, vprime);
+    }
+}
