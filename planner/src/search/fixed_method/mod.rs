@@ -1,4 +1,4 @@
-mod fixed_method_tests;
+mod test_cases;
 mod goal_checks;
 mod search_node;
 mod search_space;
