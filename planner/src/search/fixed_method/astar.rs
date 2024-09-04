@@ -52,6 +52,7 @@ pub fn a_star_search(
     open.insert(space.initial_search_node.clone());
 
     while let Some(parent) = open.pop_least() {
+        // println!("[EXPAND] {}", parent.borrow().to_string(&problem));
         parent.borrow_mut().status = AStarStatus::Closed;
         space.explored_nodes += 1; // closed set increased in size by 1
         let result = goal_check_fn(problem, parent.clone());

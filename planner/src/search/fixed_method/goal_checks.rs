@@ -40,25 +40,26 @@ pub enum TaggedTask {
 pub fn is_goal_strong_od(
     problem: &FONDProblem,
     leaf_node: Rc<RefCell<SearchNode>>,
-) -> Option<StrongPolicy> {
+) -> AStarResult {
     if !leaf_node.clone().borrow().tn.is_empty() {
-        return None;
+        return AStarResult::NoSolution;
     }
 
     // construct new FONDProblem for the AO* subproblem
-    let sub_problem = FONDProblem {
+    let mut sub_problem = FONDProblem {
         facts: problem.facts.clone(),
         tasks: problem.tasks.clone(),
         initial_state: leaf_node.borrow().state.clone(),
         init_tn: deorder(leaf_node.clone()),
     };
+    sub_problem.collapse_tn();
 
     // call AO* algorithm
     let (solution, stats) = AOStarSearch::run(&sub_problem, HeuristicType::HAdd);
 
     match solution {
-        SearchResult::Success(policy) => Some(policy),
-        SearchResult::NoSolution => None,
+        SearchResult::Success(policy) => AStarResult::Strong(policy),
+        SearchResult::NoSolution => AStarResult::NoSolution,
     }
 }
 
