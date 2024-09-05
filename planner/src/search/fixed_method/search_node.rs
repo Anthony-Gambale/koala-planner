@@ -67,6 +67,18 @@ impl SearchNode {
         SearchNode::to_string_structure(&self.state, &self.tn, problem)
     }
 
+    pub fn to_string_tn(tn: &HTN, problem: &FONDProblem) -> Vec<String> {
+        let uncon_ids = tn.get_unconstrained_tasks();
+        let mut sorted_uncon_ids: Vec<&u32> = uncon_ids.iter().collect();
+        sorted_uncon_ids.sort_by(|a, b| a.cmp(b));
+        let mut uncon_names = Vec::new();
+        for id in uncon_ids {
+            let name = tn.get_task(id).borrow().get_name();
+            uncon_names.push(format!("{}:{}", name, id));
+        }
+        uncon_names
+    }
+
     pub fn to_string_structure(state: &HashSet<u32>, tn: &HTN, problem: &FONDProblem) -> String {
         // Sorting is needed so order is predictable (for tests to pass)
         let mut sorted_state: Vec<&u32> = state.iter().collect();
@@ -76,17 +88,7 @@ impl SearchNode {
             let name = problem.facts.get_fact(*id);
             state_names.push(name);
         }
-
-        let uncon_ids = tn.get_unconstrained_tasks();
-        let mut sorted_uncon_ids: Vec<&u32> = uncon_ids.iter().collect();
-        sorted_uncon_ids.sort_by(|a, b| a.cmp(b));
-        let mut uncon_names = Vec::new();
-        for id in uncon_ids {
-            let name = tn.get_task(id).borrow().get_name();
-            uncon_names.push(format!("{}:{}", name, id));
-        }
-
-        format!("state={:?} uncon={:?}", state_names, uncon_names)
+        format!("state={:?} uncon={:?}", state_names, SearchNode::to_string_tn(tn, problem))
     }
 
     pub fn compute_h_value(

@@ -2,12 +2,12 @@ use crate::domain_description::Facts;
 use crate::domain_description::FONDProblem;
 use super::super::*;
 use std::{
-    borrow::BorrowMut,
-    collections::{BTreeSet, HashMap, HashSet}, vec,
+    collections::{BTreeSet, HashMap, HashSet}, vec, rc::Rc,
 };
 use super::super::astar::{a_star_search, AStarResult};
 use super::super::goal_checks::*;
 use search_node::get_successors_systematic;
+use search_node::SearchNode;
 
 #[cfg(test)]
 #[test]
@@ -54,14 +54,21 @@ pub fn strong_od_problem_1() {
         || 1.0,
         is_goal_strong_od,
     );
-    println!("\nPLAN\n");
     if let AStarResult::Strong(policy) = solution {
-        println!("{:?}", policy);
-    } else if let AStarResult::Linear(lin) = solution {
-        println!("{}", lin.to_string(&problem));
+        println!("\nPLAN\n");
+        for (input, output) in policy.transitions {
+            let input_s = format![
+                "state={:?} uncon={:?}", input.state,
+                SearchNode::to_string_tn(&input.tn, &problem),
+            ];
+            let output_s = format!("({},{})", output.task, output.method);
+            println!("{} -> {}", input_s, output_s);
+        }
     } else {
-        println!("NO SOLUTION");
+        println!("\nNO PLAN\n");
     }
+    println!("\nSEARCH SPACE explored:{} total:{}\n", statistics.space.explored_nodes, statistics.space.total_nodes);
+    println!("{}", statistics.space.to_string(&problem));
 }
 
 #[cfg(test)]
@@ -102,12 +109,19 @@ pub fn strong_od_problem_2() {
         || 1.0,
         is_goal_strong_od,
     );
-    println!("\nPLAN\n");
-    // if let AStarResult::Strong(policy) = solution {
-    //     println!("{:?}", policy);
-    // } else if let AStarResult::Linear(lin) = solution {
-    //     println!("{}", lin.to_string(&problem));
-    // } else {
-    //     println!("NO SOLUTION");
-    // }
+    if let AStarResult::Strong(policy) = solution {
+        println!("\nPLAN\n");
+        for (input, output) in policy.transitions {
+            let input_s = format![
+                "state={:?} uncon={:?}", input.state,
+                SearchNode::to_string_tn(&input.tn, &problem),
+            ];
+            let output_s = format!("({},{})", output.task, output.method);
+            println!("{} -> {}", input_s, output_s);
+        }
+    } else {
+        println!("\nNO PLAN\n");
+    }
+    println!("\nSEARCH SPACE explored:{} total:{}\n", statistics.space.explored_nodes, statistics.space.total_nodes);
+    println!("{}", statistics.space.to_string(&problem));
 }

@@ -49,7 +49,7 @@ pub fn is_goal_strong_od(
     let mut sub_problem = FONDProblem {
         facts: problem.facts.clone(),
         tasks: problem.tasks.clone(),
-        initial_state: leaf_node.borrow().state.clone(),
+        initial_state: problem.initial_state.clone(),
         init_tn: deorder(leaf_node.clone()),
     };
     sub_problem.collapse_tn();
