@@ -1,0 +1,8 @@
+(define
+	(problem ptest)
+	(:domain test)
+	(:htn
+		:parameters ()
+		:subtasks (and a b c)
+		:ordering (and (< a b) (< a c)))
+	(:init ()))

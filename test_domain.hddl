@@ -1,0 +1,21 @@
+(define (domain test)
+
+	(:requirements :hierarchy)
+
+	(:predicates
+		(fact1)
+		(fact2))
+
+	(:action a
+		:precondition ()
+		:effect (oneof
+			(fact1)
+			(fact2)))
+
+	(:action b
+		:precondition (fact1)
+		:effect (fact2))
+	
+	(:action c
+		:precondition (fact2)
+		:effect (fact1)))

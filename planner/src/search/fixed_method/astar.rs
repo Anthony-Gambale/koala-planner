@@ -29,6 +29,15 @@ pub struct AStarStatistics {
     pub search_time: Duration,
 }
 
+impl std::fmt::Display for AStarStatistics {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+        writeln!(f, "# of search nodes: {}", self.space.total_nodes);
+        writeln!(f, "# of explored nodes: {}", self.space.explored_nodes);
+        let time = self.search_time.as_secs_f64();
+        writeln!(f, "search duration: {}", time.trunc())
+    }
+}
+
 pub fn a_star_search(
     problem: &FONDProblem,
     heuristic_fn: fn(&FONDProblem, &HashSet<u32>, &HTN) -> f32,
@@ -52,7 +61,7 @@ pub fn a_star_search(
     open.insert(space.initial_search_node.clone());
 
     while let Some(parent) = open.pop_least() {
-        // println!("[EXPAND] {}", parent.borrow().to_string(&problem));
+        println!("[EXPAND] {}", parent.borrow().to_string(&problem));
         parent.borrow_mut().status = AStarStatus::Closed;
         space.explored_nodes += 1; // closed set increased in size by 1
         let result = goal_check_fn(problem, parent.clone());

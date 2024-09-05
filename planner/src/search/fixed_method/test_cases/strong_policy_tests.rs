@@ -56,14 +56,7 @@ pub fn strong_od_problem_1() {
     );
     if let AStarResult::Strong(policy) = solution {
         println!("\nPLAN\n");
-        for (input, output) in policy.transitions {
-            let input_s = format![
-                "state={:?} uncon={:?}", input.state,
-                SearchNode::to_string_tn(&input.tn, &problem),
-            ];
-            let output_s = format!("({},{})", output.task, output.method);
-            println!("{} -> {}", input_s, output_s);
-        }
+        println!("{}", policy);
     } else {
         println!("\nNO PLAN\n");
     }
@@ -111,14 +104,7 @@ pub fn strong_od_problem_2() {
     );
     if let AStarResult::Strong(policy) = solution {
         println!("\nPLAN\n");
-        for (input, output) in policy.transitions {
-            let input_s = format![
-                "state={:?} uncon={:?}", input.state,
-                SearchNode::to_string_tn(&input.tn, &problem),
-            ];
-            let output_s = format!("({},{})", output.task, output.method);
-            println!("{} -> {}", input_s, output_s);
-        }
+        println!("{}", policy);
     } else {
         println!("\nNO PLAN\n");
     }
