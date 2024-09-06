@@ -11,6 +11,7 @@ mod relaxation;
 mod heuristics;
 
 use domain_description::{read_json_domain, FONDProblem};
+use heuristics::h_max;
 use search::{astar::AStarResult, goal_checks::{is_goal_strong_od, is_goal_weak_ld}, search_node::{get_successors_systematic, SearchNode}};
 use crate::search::{SearchResult, HeuristicType};
 
@@ -49,7 +50,28 @@ fn method_based(problem: &FONDProblem) {
 fn fixed_method(problem: &FONDProblem) {
     let (solution, stats) = search::fixed_method::astar::a_star_search(
         &problem,
-        |x, y, z| 0.0,
+        |space, problem, state, tn| {
+            let encoder = &space.relaxed_domain.0;
+            let bijection = &space.relaxed_domain.1;
+            let occurances = tn.count_tasks_with_frequency();
+            let task_ids = occurances.iter().map(|(task, _)| {
+                *bijection.get(task).unwrap()
+            }).collect();
+            let relaxed_state = encoder.compute_relaxed_state(
+                &task_ids,
+                state
+            );
+            let goal_state = encoder.compute_goal_state(&task_ids);
+            let mut val = h_max(&encoder.domain, &relaxed_state, &goal_state);
+        
+            // Compensate for the repetition of tasks
+            for (_, count) in occurances {
+                if count > 1 {
+                    val += (count - 1) as f32
+                }
+            }
+            val
+        },
         get_successors_systematic,
         || 1.0,
         is_goal_strong_od,

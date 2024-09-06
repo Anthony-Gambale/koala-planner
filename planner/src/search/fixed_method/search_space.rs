@@ -2,8 +2,7 @@ use search_node::{AStarStatus, Edge, SearchNode};
 
 use super::*;
 use crate::{
-    domain_description::{ClassicalDomain, DomainTasks, FONDProblem, Facts},
-    task_network::{Method, HTN},
+    domain_description::{ClassicalDomain, DomainTasks, FONDProblem, Facts}, relaxation::{OutcomeDeterminizer, RelaxedComposition}, task_network::{Method, HTN}
 };
 use std::{
     cell::RefCell,
@@ -19,19 +18,23 @@ pub struct SearchSpace {
     */
     pub maybe_isomorphic_buckets: HashMap<u32, Vec<Rc<RefCell<SearchNode>>>>,
     pub initial_search_node: Rc<RefCell<SearchNode>>,
+    pub relaxed_domain: (RelaxedComposition, HashMap<u32, u32>),
     pub next_node_id: u32,
     pub explored_nodes: u32,
     pub total_nodes: u32,
 }
 
 impl SearchSpace {
-    pub fn new(init_tn: HTN, init_state: HashSet<u32>) -> SearchSpace {
+    pub fn new(init_tn: HTN, init_state: HashSet<u32>, problem: &FONDProblem) -> SearchSpace {
         let node = Rc::new(RefCell::new(SearchNode::new(0, init_tn, init_state)));
         node.borrow_mut().status = AStarStatus::Open;
         let buckets = HashMap::from([(node.borrow().maybe_isomorphic_hash(), vec![node.clone()])]);
+        let (outcome_det, bijection) = OutcomeDeterminizer::from_fond_problem(problem);
+        let relaxed = RelaxedComposition::new(&outcome_det);
         SearchSpace {
             maybe_isomorphic_buckets: buckets,
             initial_search_node: node,
+            relaxed_domain: (relaxed, bijection),
             next_node_id: 0,
             explored_nodes: 0,
             total_nodes: 1,

@@ -93,10 +93,11 @@ impl SearchNode {
 
     pub fn compute_h_value(
         &mut self,
+        s: &SearchSpace,
         p: &FONDProblem,
-        h: fn(&FONDProblem, &HashSet<u32>, &HTN) -> f32,
+        h: fn(&SearchSpace, &FONDProblem, &HashSet<u32>, &HTN) -> f32,
     ) {
-        self.h_value = Some(h(p, &self.state, &self.tn));
+        self.h_value = Some(h(s, p, &self.state, &self.tn));
     }
 
     pub fn f_value(&self) -> f32 {
