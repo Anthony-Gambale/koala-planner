@@ -52,14 +52,27 @@ pub fn is_goal_strong_od(
         initial_state: problem.initial_state.clone(),
         init_tn: deorder(leaf_node.clone()),
     };
+    
+    // debug logging
+    println!("[DEBUG] Found an achievable primitive task network with a weak OD solution");
+    println!("{}", sub_problem.init_tn);
+
+    // make initial task network just one abstract task
     sub_problem.collapse_tn();
 
     // call AO* algorithm
     let (solution, stats) = AOStarSearch::run(&sub_problem, HeuristicType::HAdd);
 
     match solution {
-        SearchResult::Success(policy) => AStarResult::Strong(policy),
-        SearchResult::NoSolution => AStarResult::NoSolution,
+        SearchResult::Success(policy) => {
+            println!("[DEBUG] Strong OD solution was found");
+            AStarResult::Strong(policy)
+        },
+        SearchResult::NoSolution => {
+            // debug logging
+            println!("[DEBUG] Did not find a strong OD solution");
+            AStarResult::NoSolution
+        },
     }
 }
 

@@ -1,8 +1,12 @@
 (define
-	(problem ptest)
-	(:domain test)
+	(problem basicp)
+	(:domain basic)
+	(:objects)
 	(:htn
 		:parameters ()
-		:subtasks (and a b c)
-		:ordering (and (< a b) (< a c)))
-	(:init ()))
+		:subtasks (and
+			(t1 (a))
+			(t2 (b))
+			(t3 (c)))
+		:ordering (and (< t1 t2) (< t1 t3)))
+	(:init))

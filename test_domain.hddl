@@ -1,21 +1,14 @@
-(define (domain test)
-
-	(:requirements :hierarchy)
-
-	(:predicates
-		(fact1)
-		(fact2))
-
+(define (domain basic)
+	(:predicates (f1) (f2))
 	(:action a
+		:parameters ()
 		:precondition ()
-		:effect (oneof
-			(fact1)
-			(fact2)))
-
+		:effect (oneof (f1) (f2)))
 	(:action b
-		:precondition (fact1)
-		:effect (fact2))
-	
+		:parameters ()
+		:precondition (f1)
+		:effect (f2))
 	(:action c
-		:precondition (fact2)
-		:effect (fact1)))
+		:parameters ()
+		:precondition (f2)
+		:effect (f1)))

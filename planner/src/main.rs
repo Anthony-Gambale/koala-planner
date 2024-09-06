@@ -23,7 +23,7 @@ fn main() {
     let problem = read_json_domain(&args[1]);
     match args.get(2) {
         Some(flag) => match flag.as_str() {
-            "-f" => fixed_method(&problem),
+            "--fixed" => fixed_method(&problem),
             _ => panic!("Did not recognise flag {}", flag),
         }
         None => method_based(&problem),
@@ -56,6 +56,7 @@ fn fixed_method(problem: &FONDProblem) {
     );
     print!("{}", stats);
     if let AStarResult::Strong(policy) = solution {
+        println!("***************************");
         println!("{}", policy);
     } else {
         println!("Problem has no solution");
