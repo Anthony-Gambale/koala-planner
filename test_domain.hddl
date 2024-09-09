@@ -11,4 +11,6 @@
 	(:action c
 		:parameters ()
 		:precondition (f2)
-		:effect (f1)))
+		:effect (f1)
+	)
+)

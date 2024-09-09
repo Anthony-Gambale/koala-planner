@@ -1,0 +1,24 @@
+(define
+    (problem sync_problem)
+    (:domain  sync)
+    (:objects
+        patient_0 - patient
+        patient_1 - patient
+        patient_2 - patient
+    )
+    (:htn
+        :parameters ()
+        :subtasks (and
+            (task0 (tend_to_patient patient_0))
+            (task1 (tend_to_patient patient_1))
+            (task2 (tend_to_patient patient_2))
+            (task3 (wash_dishes))
+        )
+        :ordering (and
+            (< task0 task3)
+            (< task1 task3)
+            (< task2 task3)
+        )
+    )
+    (:init)
+)

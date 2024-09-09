@@ -57,7 +57,7 @@ pub fn test_deordering() {
     );
     let (solution, statistics) = a_star_search(
         &problem,
-        |x, y, z| 0.0,
+        |x, y, z, w| 0.0,
         get_successors_systematic,
         || 1.0,
         is_goal_weak_ld,
@@ -128,7 +128,7 @@ pub fn test_deordering2() {
     );
     let (solution, statistics) = a_star_search(
         &problem,
-        |x, y, z| 0.0,
+        |x, y, z, w| 0.0,
         get_successors_systematic,
         || 1.0,
         is_goal_weak_ld,
@@ -209,7 +209,7 @@ fn test_deordering3() {
     );
     let (solution, statistics) = a_star_search(
         &problem,
-        |x, y, z| 0.0,
+        |x, y, z, w| 0.0,
         get_successors_systematic,
         || 1.0,
         is_goal_weak_ld,

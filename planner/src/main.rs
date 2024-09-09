@@ -81,6 +81,7 @@ fn fixed_method(problem: &FONDProblem) {
         println!("***************************");
         println!("{}", policy);
     } else {
+        println!("{}", stats.space.to_string(problem));
         println!("Problem has no solution");
     }
 }

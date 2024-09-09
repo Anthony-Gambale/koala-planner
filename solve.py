@@ -14,6 +14,7 @@ def solve(domain, problem, fixed_flag, timeout=30):
         [parser_path,
          path + f"/{domain}", path + f"/{problem}"],
          capture_output=True)
+    print(parsed.stderr.decode("utf-8"))
     with open(grounder_path + "parsed.htn", "w+") as f:
         f.write(parsed.stdout.decode("utf-8"))
     # Grounding
@@ -29,10 +30,11 @@ def solve(domain, problem, fixed_flag, timeout=30):
         return
     # Serializing
     if os.path.isfile(serilazer_path + "result.sas+"):
-        subprocess.run(
+        serialized = subprocess.run(
             ["python3", serilazer_path + "htn_parser.py",
             serilazer_path + "result.sas+", planner_path + "result.json"],
             capture_output=True)
+        print(serialized.stderr.decode("utf-8"))
         os.remove(serilazer_path + "result.sas+")
     else:
         print(f"\t\tfailed to ground {problem}", file=sys.stderr)

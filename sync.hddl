@@ -1,0 +1,68 @@
+(define (domain sync)
+    (:requirements :typing :hierarchy)
+    (:types
+        patient
+    )
+    (:predicates
+        (hungry ?arg0 - patient)
+        (full ?arg0 - patient)
+    )
+
+    ;; tasks
+
+    (:task tend_to_patient :parameters (?p - patient))
+
+    (:task wash_dishes :parameters ())
+
+    ;; methods
+
+    (:method m_wash_dishes_0
+        :parameters ()
+        :task (wash_dishes)
+        :subtasks (and (task0 (wait)))
+    )
+
+    (:method m_wash_dishes_1
+        :parameters ()
+        :task (wash_dishes)
+        :subtasks (and (task0 (collect_dishes)))
+    )
+
+    (:method m_tend_to_patient_0
+        :parameters (?p - patient)
+        :task (tend_to_patient ?p)
+        :subtasks (and
+            (task0 (check_on_patient ?p))
+            (task1 (wait_for_patient ?p))
+            (task2 (provide_patient_meal ?p))
+        )
+        :ordering (and
+            (< task0 task1)
+            (< task0 task2)
+        )
+    )
+
+    ;; actions
+
+    (:action check_on_patient
+        :parameters (?p - patient)
+        :precondition ()
+        :effect (oneof (hungry ?p) (full ?p))
+    )
+
+    (:action wait_for_patient
+        :parameters (?p - patient)
+        :precondition (full ?p)
+        :effect (and (hungry ?p) (not (full ?p)))
+    )
+
+    (:action provide_patient_meal
+        :parameters (?p - patient)
+        :precondition (hungry ?p)
+        :effect (and (full ?p) (not (hungry ?p)))
+    )
+
+    (:action wait :parameters () :precondition () :effect ())
+
+    (:action collect_dishes :parameters () :precondition () :effect ())
+)

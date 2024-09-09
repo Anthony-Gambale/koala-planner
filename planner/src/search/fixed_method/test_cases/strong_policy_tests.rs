@@ -49,7 +49,7 @@ pub fn strong_od_problem_1() {
     );
     let (solution, statistics) = a_star_search(
         &problem,
-        |x, y, z| 0.0,
+        |x, y, z, w| 0.0,
         get_successors_systematic,
         || 1.0,
         is_goal_strong_od,
@@ -97,7 +97,7 @@ pub fn strong_od_problem_2() {
     );
     let (solution, statistics) = a_star_search(
         &problem,
-        |x, y, z| 0.0,
+        |x, y, z, w| 0.0,
         get_successors_systematic,
         || 1.0,
         is_goal_strong_od,

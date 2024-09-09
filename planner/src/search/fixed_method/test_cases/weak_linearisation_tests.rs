@@ -46,7 +46,7 @@ pub fn weak_ld_problem_1() {
     );
     let (solution, statistics) = a_star_search(
         &problem,
-        |x, y, z| 0.0,
+        |x, y, z, w| 0.0,
         get_successors_systematic,
         || 1.0,
         is_goal_weak_ld,
@@ -107,7 +107,7 @@ pub fn weak_ld_problem_2() {
     );
     let (solution, statistics) = a_star_search(
         &problem,
-        |x, y, z| 0.0,
+        |x, y, z, w| 0.0,
         get_successors_systematic,
         || 1.0,
         is_goal_weak_ld,
@@ -162,7 +162,7 @@ pub fn weak_ld_problem_3() {
     );
     let (solution, statistics) = a_star_search(
         &problem,
-        |x, y, z| 0.0,
+        |x, y, z, w| 0.0,
         get_successors_systematic,
         || 1.0,
         is_goal_weak_ld,
