@@ -12,7 +12,7 @@
             (task0 (tend_to_patient patient_0))
             (task1 (tend_to_patient patient_1))
             (task2 (tend_to_patient patient_2))
-            (task3 (wash_dishes))
+            (task3 (clean_up))
         )
         :ordering (and
             (< task0 task3)

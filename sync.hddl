@@ -12,20 +12,20 @@
 
     (:task tend_to_patient :parameters (?p - patient))
 
-    (:task wash_dishes :parameters ())
+    (:task clean_up :parameters ())
 
     ;; methods
 
-    (:method m_wash_dishes_0
+    (:method m_clean_up_0
         :parameters ()
-        :task (wash_dishes)
-        :subtasks (and (task0 (wait)))
+        :task (clean_up)
+        :subtasks (and (task0 (use_disposable)))
     )
 
-    (:method m_wash_dishes_1
+    (:method m_clean_up_1
         :parameters ()
-        :task (wash_dishes)
-        :subtasks (and (task0 (collect_dishes)))
+        :task (clean_up)
+        :subtasks (and (task0 (wash_dishes)))
     )
 
     (:method m_tend_to_patient_0
@@ -62,7 +62,7 @@
         :effect (and (full ?p) (not (hungry ?p)))
     )
 
-    (:action wait :parameters () :precondition () :effect ())
+    (:action use_disposable :parameters () :precondition () :effect ())
 
-    (:action collect_dishes :parameters () :precondition () :effect ())
+    (:action wash_dishes :parameters () :precondition () :effect ())
 )

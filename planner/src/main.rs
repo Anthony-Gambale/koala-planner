@@ -38,8 +38,8 @@ fn method_based(problem: &FONDProblem) {
         SearchResult::Success(x) => {
             println!("makespan: {}", x.makespan);
             println!("policy enteries: {}", x.transitions.len());
-            //println!("***************************");
-            //println!("{}", x);
+            println!("***************************");
+            println!("{}", x);
         },
         SearchResult::NoSolution => {
             println!("Problem has no solution");
@@ -81,7 +81,9 @@ fn fixed_method(problem: &FONDProblem) {
         println!("***************************");
         println!("{}", policy);
     } else {
-        println!("{}", stats.space.to_string(problem));
         println!("Problem has no solution");
+    }
+    if (stats.space.total_nodes < 100) {
+        println!("{}", stats.space.to_string(problem));
     }
 }
