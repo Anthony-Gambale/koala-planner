@@ -1,4 +1,4 @@
-(define (domain sync)
+(define (domain maintenance)
     (:requirements :typing :hierarchy)
     (:types
         door

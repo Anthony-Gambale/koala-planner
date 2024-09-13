@@ -65,7 +65,7 @@ fn fixed_method(problem: &FONDProblem) {
             );
             let goal_state = encoder.compute_goal_state(&task_ids);
             let mut val = h_add(&encoder.domain, &relaxed_state, &goal_state);
-        
+
             // Compensate for the repetition of tasks
             for (_, count) in occurances {
                 if count > 1 {
@@ -78,7 +78,8 @@ fn fixed_method(problem: &FONDProblem) {
         || 1.0,
         is_goal_strong_od,
     );
-    print!("{}", stats);
+    println!("{}", stats);
+    println!("Number of maybe-isomorphic buckets: {}", stats.space.maybe_isomorphic_buckets.len());
     if let AStarResult::Strong(policy) = solution {
         if (stats.space.total_nodes < 100) {
             println!("***************************");

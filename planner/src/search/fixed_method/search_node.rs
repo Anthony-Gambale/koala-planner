@@ -11,6 +11,8 @@ use std::{
     rc::Rc,
     string,
 };
+use std::hash::{Hash, Hasher};
+use std::collections::hash_map::DefaultHasher;
 
 #[derive (PartialEq, Eq)]
 pub enum AStarStatus {
@@ -54,9 +56,14 @@ impl SearchNode {
         Different hash -> *definitely not* isomorphic
     */
     pub fn maybe_isomorphic_hash(&self) -> u32 {
-        let number_of_tasks = self.tn.count_tasks() as u32;
-        let fact_sum: u32 = self.state.iter().sum();
-        number_of_tasks + 999983 * fact_sum
+        let mut hasher = DefaultHasher::new();
+        let mut sorted_set: Vec<_> = self.state.iter().collect();
+        sorted_set.sort();
+        for &elem in &sorted_set {
+            elem.hash(&mut hasher);
+        }
+        self.tn.count_tasks().hash(&mut hasher);
+        hasher.finish() as u32
     }
 
     pub fn is_isomorphic(&self, other: Rc<RefCell<SearchNode>>) -> bool {

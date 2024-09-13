@@ -1,6 +1,6 @@
 (define
-    (problem sync_problem)
-    (:domain  sync)
+    (problem maintenance_3d)
+    (:domain maintenance)
     (:objects
         door_0 - door
         door_1 - door
