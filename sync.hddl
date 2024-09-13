@@ -1,40 +1,40 @@
 (define (domain sync)
     (:requirements :typing :hierarchy)
     (:types
-        patient
+        door
     )
     (:predicates
-        (hungry ?arg0 - patient)
-        (full ?arg0 - patient)
+        (open ?arg0 - door)
+        (closed ?arg0 - door)
     )
 
     ;; tasks
 
-    (:task tend_to_patient :parameters (?p - patient))
+    (:task inspect_door :parameters (?d - door))
 
-    (:task clean_up :parameters ())
+    (:task eat_lunch :parameters ())
 
     ;; methods
 
-    (:method m_clean_up_0
+    (:method m_eat_lunch_0
         :parameters ()
-        :task (clean_up)
-        :subtasks (and (task0 (use_disposable)))
+        :task (eat_lunch)
+        :subtasks (and (task0 (fast_food)))
     )
 
-    (:method m_clean_up_1
+    (:method m_eat_lunch_1
         :parameters ()
-        :task (clean_up)
-        :subtasks (and (task0 (wash_dishes)))
+        :task (eat_lunch)
+        :subtasks (and (task0 (packed_lunch)))
     )
 
-    (:method m_tend_to_patient_0
-        :parameters (?p - patient)
-        :task (tend_to_patient ?p)
+    (:method m_inspect_door_0
+        :parameters (?d - door)
+        :task (inspect_door ?d)
         :subtasks (and
-            (task0 (check_on_patient ?p))
-            (task1 (wait_for_patient ?p))
-            (task2 (provide_patient_meal ?p))
+            (task0 (observe_door ?d))
+            (task1 (open_door ?d))
+            (task2 (close_door ?d))
         )
         :ordering (and
             (< task0 task1)
@@ -44,25 +44,25 @@
 
     ;; actions
 
-    (:action check_on_patient
-        :parameters (?p - patient)
+    (:action observe_door
+        :parameters (?d - door)
         :precondition ()
-        :effect (oneof (hungry ?p) (full ?p))
+        :effect (oneof (open ?d) (closed ?d))
     )
 
-    (:action wait_for_patient
-        :parameters (?p - patient)
-        :precondition (full ?p)
-        :effect (and (hungry ?p) (not (full ?p)))
+    (:action open_door
+        :parameters (?d - door)
+        :precondition (closed ?d)
+        :effect (and (open ?d) (not (closed ?d)))
     )
 
-    (:action provide_patient_meal
-        :parameters (?p - patient)
-        :precondition (hungry ?p)
-        :effect (and (full ?p) (not (hungry ?p)))
+    (:action close_door
+        :parameters (?d - door)
+        :precondition (open ?d)
+        :effect (and (closed ?d) (not (open ?d)))
     )
 
-    (:action use_disposable :parameters () :precondition () :effect ())
+    (:action fast_food :parameters () :precondition () :effect ())
 
-    (:action wash_dishes :parameters () :precondition () :effect ())
+    (:action packed_lunch :parameters () :precondition () :effect ())
 )

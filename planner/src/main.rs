@@ -11,7 +11,7 @@ mod relaxation;
 mod heuristics;
 
 use domain_description::{read_json_domain, FONDProblem};
-use heuristics::h_max;
+use heuristics::{h_max, h_add};
 use search::{astar::AStarResult, goal_checks::{is_goal_strong_od, is_goal_weak_ld}, search_node::{get_successors_systematic, SearchNode}};
 use crate::search::{SearchResult, HeuristicType};
 
@@ -38,8 +38,10 @@ fn method_based(problem: &FONDProblem) {
         SearchResult::Success(x) => {
             println!("makespan: {}", x.makespan);
             println!("policy enteries: {}", x.transitions.len());
-            println!("***************************");
-            println!("{}", x);
+            if (stats.search_nodes < 100) {
+                println!("***************************");
+                println!("{}", x);
+            }
         },
         SearchResult::NoSolution => {
             println!("Problem has no solution");
@@ -62,7 +64,7 @@ fn fixed_method(problem: &FONDProblem) {
                 state
             );
             let goal_state = encoder.compute_goal_state(&task_ids);
-            let mut val = h_max(&encoder.domain, &relaxed_state, &goal_state);
+            let mut val = h_add(&encoder.domain, &relaxed_state, &goal_state);
         
             // Compensate for the repetition of tasks
             for (_, count) in occurances {
@@ -78,8 +80,10 @@ fn fixed_method(problem: &FONDProblem) {
     );
     print!("{}", stats);
     if let AStarResult::Strong(policy) = solution {
-        println!("***************************");
-        println!("{}", policy);
+        if (stats.space.total_nodes < 100) {
+            println!("***************************");
+            println!("{}", policy);
+        }
     } else {
         println!("Problem has no solution");
     }
