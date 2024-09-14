@@ -1,0 +1,41 @@
+(define
+    (problem firesafety_2b)
+    (:domain firesafety)
+    (:objects
+        office - building
+        mall - building
+        home - building
+        warehouse - building
+    )
+    (:htn
+        :parameters ()
+        :subtasks (and
+            (task0 (fire_alarm office))
+            (task1 (fire_alarm mall))
+            (task2 (fire_alarm home))
+            (task3 (fire_alarm warehouse))
+            (task4 (resolve_alarm office))
+            (task5 (resolve_alarm mall))
+            (task6 (resolve_alarm home))
+            (task7 (resolve_alarm warehouse))
+            (task8 (verify_safety))
+        )
+        :ordering (and
+            ;; fire alarms occur in a sequence
+            (< task0 task1)
+            (< task1 task2)
+            (< task2 task3)
+            ;; resolve in any order after last alarm
+            (< task3 task4)
+            (< task3 task5)
+            (< task3 task6)
+            (< task3 task7)
+            ;; verify after all have been resolved
+            (< task4 task8)
+            (< task5 task8)
+            (< task6 task8)
+            (< task7 task8)
+        )
+    )
+    (:init)
+)
