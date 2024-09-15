@@ -52,6 +52,7 @@ fn method_based(problem: &FONDProblem) {
 fn fixed_method(problem: &FONDProblem) {
     let (solution, stats) = search::fixed_method::astar::a_star_search(
         &problem,
+        // |space, problem, state, tn| 0.0,
         |space, problem, state, tn| {
             let encoder = &space.relaxed_domain.0;
             let bijection = &space.relaxed_domain.1;
