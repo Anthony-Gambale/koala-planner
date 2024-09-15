@@ -38,7 +38,7 @@ fn method_based(problem: &FONDProblem) {
         SearchResult::Success(x) => {
             println!("makespan: {}", x.makespan);
             println!("policy enteries: {}", x.transitions.len());
-            if (stats.search_nodes < 100) {
+            if (stats.search_nodes < 30) {
                 println!("***************************");
                 println!("{}", x);
             }
@@ -81,14 +81,14 @@ fn fixed_method(problem: &FONDProblem) {
     println!("{}", stats);
     println!("Number of maybe-isomorphic buckets: {}", stats.space.maybe_isomorphic_buckets.len());
     if let AStarResult::Strong(policy) = solution {
-        if (stats.space.total_nodes < 100) {
+        if (stats.space.total_nodes < 30) {
             println!("***************************");
             println!("{}", policy);
         }
     } else {
         println!("Problem has no solution");
     }
-    if (stats.space.total_nodes < 100) {
+    if (stats.space.total_nodes < 30) {
         println!("{}", stats.space.to_string(problem));
     }
 }
