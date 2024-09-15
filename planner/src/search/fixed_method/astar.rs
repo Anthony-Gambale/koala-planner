@@ -82,7 +82,7 @@ pub fn a_star_search(
             }
         }
         let successors = successor_fn(&mut space, parent.clone());
-        space.install_successors(parent.clone(), successors);
+        space.install_successors(parent.clone(), successors, false);
         'improve: for edge in parent.borrow().progressions.iter() {
             // Remove from open with old f value (before updating)
             if edge.next_node.borrow().status == AStarStatus::Open {

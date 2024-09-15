@@ -91,9 +91,16 @@ impl SearchSpace {
         &mut self,
         node: Rc<RefCell<SearchNode>>,
         successors: Vec<(u32, String, Option<String>, SearchNode)>,
+        loop_detection_enbaled: bool,
     ) {
         for (id, task_name, method_name, successor) in successors {
-            let successor_in_graph: Rc<RefCell<SearchNode>> = self.find_isomorphic(successor);
+            let successor_in_graph: Rc<RefCell<SearchNode>>;
+            if loop_detection_enbaled {
+                successor_in_graph = self.find_isomorphic(successor);
+            } else {
+                successor_in_graph = Rc::new(RefCell::new(successor));
+                self.total_nodes += 1;
+            }
             node.borrow_mut().progressions.push(Edge {
                 task_id: id,
                 task_name: task_name,
