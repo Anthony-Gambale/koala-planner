@@ -1,0 +1,20 @@
+(define
+    (problem lights_1l)
+    (:domain lights)
+    (:objects
+        lamp - light
+    )
+    (:htn
+        :parameters ()
+        :subtasks (and
+            (task0 (inspect_light lamp))
+            (task1 (maybe_change_bulb lamp))
+            (task2 (verify))
+        )
+        :ordering (and
+            (< task0 task1)
+            (< task1 task2)
+        )
+    )
+    (:init)
+)

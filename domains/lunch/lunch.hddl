@@ -1,4 +1,4 @@
-(define (domain maintenance)
+(define (domain lunch)
     (:requirements :typing :hierarchy)
     (:types
         door

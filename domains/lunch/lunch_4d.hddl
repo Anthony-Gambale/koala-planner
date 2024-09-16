@@ -1,6 +1,6 @@
 (define
-    (problem maintenance_4d)
-    (:domain maintenance)
+    (problem lunch_4d)
+    (:domain lunch)
     (:objects
         door_0 - door
         door_1 - door
