@@ -40,10 +40,10 @@
         :subtasks (and (task0 (change_bulb ?l)))
     )
 
-    (:method m_maybe_change_bulb_0
+    (:method m_maybe_change_bulb_1
         :parameters (?l - light)
         :task (maybe_change_bulb ?l)
-        :subtasks (and (task0 (no_change_needed ?l)))
+        :subtasks (and (task0 (dont_change_bulb ?l)))
     )
 
     ;; actions
@@ -78,7 +78,7 @@
         :effect (not (broken ?l))
     )
 
-    (:action no_change_needed
+    (:action dont_change_bulb
         :parameters (?l - light)
         :precondition ()
         :effect ()
