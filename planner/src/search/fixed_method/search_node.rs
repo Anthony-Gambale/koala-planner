@@ -2,8 +2,7 @@ use search_space::SearchSpace;
 
 use super::*;
 use crate::{
-    domain_description::{ClassicalDomain, DomainTasks, FONDProblem},
-    task_network::{Applicability, Method, Task, HTN},
+    domain_description::{ClassicalDomain, DomainTasks, FONDProblem}, relaxation::RelaxedComposition, task_network::{Applicability, Method, Task, HTN}
 };
 use std::{
     cell::RefCell,
@@ -101,10 +100,9 @@ impl SearchNode {
     pub fn compute_h_value(
         &mut self,
         s: &SearchSpace,
-        p: &FONDProblem,
-        h: fn(&SearchSpace, &FONDProblem, &HashSet<u32>, &HTN) -> f32,
+        h: &impl Fn(&HTN, &HashSet<u32>, &RelaxedComposition, &HashMap<u32, u32>) -> f32,
     ) {
-        self.h_value = Some(h(s, p, &self.state, &self.tn));
+        self.h_value = Some(h(&self.tn, &self.state, &s.relaxed_domain.0, &s.relaxed_domain.1));
     }
 
     pub fn f_value(&self) -> f32 {

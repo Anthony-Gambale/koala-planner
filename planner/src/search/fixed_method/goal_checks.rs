@@ -55,7 +55,7 @@ pub fn is_goal_strong_od(
     
     // debug logging
     println!("[DEBUG] Found an achievable primitive task network with a weak OD solution");
-    println!("{}", sub_problem.init_tn);
+    // println!("{}", sub_problem.init_tn);
 
     // make initial task network just one abstract task
     sub_problem.collapse_tn();

@@ -3,7 +3,7 @@ import os
 import subprocess
 
 # Timeout in minutes
-def solve(domain, problem, fixed_flag, timeout=30):
+def solve(domain, problem, optional_flags, timeout=30):
     path = os.getcwd()
     parser_path = path + "/parser/pandaPIparser"
     grounder_path = path + "/grounder/pandaPIgrounder/"
@@ -47,13 +47,13 @@ def solve(domain, problem, fixed_flag, timeout=30):
             debug_mode = False
             if os.path.isfile(planner_path + release_suffix):
                 result = subprocess.run(
-                    [planner_path + release_suffix, planner_path + "result.json"] + fixed_flag,
+                    [planner_path + release_suffix, planner_path + "result.json"] + optional_flags,
                     capture_output=True, timeout= 60 * timeout)
             elif os.path.isfile(planner_path + debug_suffix):
                 print("Release binary not available, using debug binary...")
                 debug_mode = True
                 result = subprocess.run(
-                    [planner_path + debug_suffix, planner_path + "result.json"] + fixed_flag,
+                    [planner_path + debug_suffix, planner_path + "result.json"] + optional_flags,
                     # Print results to terminal when in debug mode
                     capture_output=False, timeout= 60 * timeout)
             else:
@@ -73,4 +73,6 @@ if __name__ == "__main__":
     domain = sys.argv[1]
     problem = sys.argv[2]
     fixed_flag = [] if len(sys.argv) < 4 else [sys.argv[3]]
-    solve(domain, problem, fixed_flag)
+    heuristic_flag = [] if len(sys.argv) < 5 else [sys.argv[4]]
+    optional_flags = fixed_flag + heuristic_flag
+    solve(domain, problem, optional_flags)

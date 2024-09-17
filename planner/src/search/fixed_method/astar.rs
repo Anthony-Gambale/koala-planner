@@ -1,8 +1,6 @@
 use super::*;
 use crate::{
-    domain_description::{ClassicalDomain, DomainTasks, FONDProblem},
-    search::{search_graph, StrongPolicy},
-    task_network::{Method, HTN},
+    domain_description::{ClassicalDomain, DomainTasks, FONDProblem}, relaxation::RelaxedComposition, search::{search_graph, StrongPolicy}, task_network::{Method, HTN}
 };
 use priority_queue::PriorityQueue;
 use search_node::{AStarStatus, SearchNode};
@@ -40,7 +38,7 @@ impl std::fmt::Display for AStarStatistics {
 
 pub fn a_star_search(
     problem: &FONDProblem,
-    heuristic_fn: fn(&SearchSpace, &FONDProblem, &HashSet<u32>, &HTN) -> f32,
+    heuristic_fn: impl Fn(&HTN, &HashSet<u32>, &RelaxedComposition, &HashMap<u32, u32>) -> f32,
     successor_fn: fn(
         &mut SearchSpace,
         Rc<RefCell<SearchNode>>,
@@ -58,7 +56,7 @@ pub fn a_star_search(
     space
         .initial_search_node
         .borrow_mut()
-        .compute_h_value(&space, problem, heuristic_fn);
+        .compute_h_value(&space, &heuristic_fn);
     space.initial_search_node.borrow_mut().g_value = Some(0.0);
 
     let mut open = PriorityQueue::new();
@@ -100,7 +98,7 @@ pub fn a_star_search(
                             (*succ_ref).parent = Some(parent.clone());
                             (*succ_ref).g_value =
                                 Some(parent.borrow().g_value.unwrap() + edge_weight_fn());
-                            (*succ_ref).compute_h_value(&space, problem, heuristic_fn);
+                            (*succ_ref).compute_h_value(&space, &heuristic_fn);
                         }
                     }
                     AStarStatus::Closed => {
@@ -110,7 +108,7 @@ pub fn a_star_search(
                             (*succ_ref).parent = Some(parent.clone());
                             (*succ_ref).g_value =
                                 Some(parent.borrow().g_value.unwrap() + edge_weight_fn());
-                            (*succ_ref).compute_h_value(&space, problem, heuristic_fn);
+                            (*succ_ref).compute_h_value(&space, &heuristic_fn);
                             (*succ_ref).status = AStarStatus::Open;
                             space.explored_nodes -= 1; // closed set decreased in size by 1
                         }
@@ -119,7 +117,7 @@ pub fn a_star_search(
                         (*succ_ref).parent = Some(parent.clone());
                         (*succ_ref).g_value =
                             Some(parent.borrow().g_value.unwrap() + edge_weight_fn());
-                        (*succ_ref).compute_h_value(&space, problem, heuristic_fn);
+                        (*succ_ref).compute_h_value(&space, &heuristic_fn);
                         (*succ_ref).status = AStarStatus::Open;
                     }
                 }

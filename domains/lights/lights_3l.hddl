@@ -1,0 +1,34 @@
+(define
+    (problem lights_2l)
+    (:domain lights)
+    (:objects
+        lamp - light
+        torch - light
+        LED - light
+    )
+    (:htn
+        :parameters ()
+        :subtasks (and
+            (task0 (inspect_light lamp))
+            (task1 (inspect_light torch))
+            (task2 (inspect_light LED))
+            (task3 (maybe_change_bulb lamp))
+            (task4 (maybe_change_bulb torch))
+            (task5 (maybe_change_bulb LED))
+            (task6 (verify))
+        )
+        :ordering (and
+            ;; inspections in order
+            (< task0 task1)
+            (< task1 task2)
+            ;; change bulbs partially ordered
+            (< task2 task3)
+            (< task2 task4)
+            (< task2 task5)
+            ;; verification at the end
+            (< task3 task6)
+            (< task4 task6)
+            (< task5 task6)
+        )
+    )
+)

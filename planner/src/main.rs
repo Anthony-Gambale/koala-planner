@@ -1,19 +1,26 @@
 #![allow(unused)]
-use std::env;
+use std::{collections::{HashSet, HashMap}, env};
 
 extern crate bit_vec;
 
 mod domain_description;
 mod graph_lib;
-mod task_network;
-mod search;
-mod relaxation;
 mod heuristics;
+mod relaxation;
+mod search;
+mod task_network;
 
+use crate::search::fixed_method::heuristic_factory;
+use crate::search::{HeuristicType, SearchResult};
 use domain_description::{read_json_domain, FONDProblem};
-use heuristics::{h_max, h_add};
-use search::{astar::AStarResult, goal_checks::{is_goal_strong_od, is_goal_weak_ld}, search_node::{get_successors_systematic, SearchNode}};
-use crate::search::{SearchResult, HeuristicType};
+use heuristics::{h_add, h_ff, h_max};
+use relaxation::RelaxedComposition;
+use search::{
+    astar::AStarResult,
+    goal_checks::{is_goal_strong_od, is_goal_weak_ld},
+    search_node::{get_successors_systematic, SearchNode},
+};
+use task_network::HTN;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -22,11 +29,35 @@ fn main() {
         return;
     }
     let problem = read_json_domain(&args[1]);
+
+    let heuristic = match args.get(3) {
+        Some(flag) => match flag.as_str() {
+            "--add" => {
+                println!("Using Add heuristic");
+                heuristic_factory::create_function_with_heuristic(h_add)
+            },
+            "--max" => {
+                println!("Using Max heuristic");
+                heuristic_factory::create_function_with_heuristic(h_max)
+            },
+            "--ff" => {
+                println!("Using FF heuristic");
+                heuristic_factory::create_function_with_heuristic(h_ff)
+            },
+            _ => panic!("Did not recognise flag {}", flag),
+        },
+        None => {
+            println!("Using constant zero heuristic");
+            heuristic_factory::zero_heuristic()
+        }
+    };
+
     match args.get(2) {
         Some(flag) => match flag.as_str() {
-            "--fixed" => fixed_method(&problem),
+            "--fixed" => fixed_method(&problem, heuristic),
+            "--flexible" => method_based(&problem),
             _ => panic!("Did not recognise flag {}", flag),
-        }
+        },
         None => method_based(&problem),
     }
 }
@@ -38,58 +69,40 @@ fn method_based(problem: &FONDProblem) {
         SearchResult::Success(x) => {
             println!("makespan: {}", x.makespan);
             println!("policy enteries: {}", x.transitions.len());
-            if (stats.search_nodes < 30) {
-                println!("***************************");
-                println!("{}", x);
-            }
-        },
+            // if (stats.search_nodes < 30) {
+            //     println!("***************************");
+            //     println!("{}", x);
+            // }
+        }
         SearchResult::NoSolution => {
             println!("Problem has no solution");
         }
     }
 }
 
-fn fixed_method(problem: &FONDProblem) {
+fn fixed_method(problem: &FONDProblem, heuristic: heuristic_factory::HeuristicFn) {
     let (solution, stats) = search::fixed_method::astar::a_star_search(
         &problem,
-        // |space, problem, state, tn| 0.0,
-        |space, problem, state, tn| {
-            let encoder = &space.relaxed_domain.0;
-            let bijection = &space.relaxed_domain.1;
-            let occurances = tn.count_tasks_with_frequency();
-            let task_ids = occurances.iter().map(|(task, _)| {
-                *bijection.get(task).unwrap()
-            }).collect();
-            let relaxed_state = encoder.compute_relaxed_state(
-                &task_ids,
-                state
-            );
-            let goal_state = encoder.compute_goal_state(&task_ids);
-            let mut val = h_add(&encoder.domain, &relaxed_state, &goal_state);
-
-            // Compensate for the repetition of tasks
-            for (_, count) in occurances {
-                if count > 1 {
-                    val += (count - 1) as f32
-                }
-            }
-            val
-        },
+        heuristic,
         get_successors_systematic,
         || 1.0,
         is_goal_strong_od,
     );
     println!("{}", stats);
-    println!("Number of maybe-isomorphic buckets: {}", stats.space.maybe_isomorphic_buckets.len());
+    // println!(
+    //     "Number of maybe-isomorphic buckets: {}",
+    //     stats.space.maybe_isomorphic_buckets.len()
+    // );
     if let AStarResult::Strong(policy) = solution {
-        if (stats.space.total_nodes < 30) {
-            println!("***************************");
-            println!("{}", policy);
-        }
+        println!("Solution was found");
+        // if (stats.space.total_nodes < 30) {
+        //     println!("***************************");
+        //     println!("{}", policy);
+        // }
     } else {
         println!("Problem has no solution");
     }
-    if (stats.space.total_nodes < 30) {
-        println!("{}", stats.space.to_string(problem));
-    }
+    // if (stats.space.total_nodes < 30) {
+    //     println!("{}", stats.space.to_string(problem));
+    // }
 }
