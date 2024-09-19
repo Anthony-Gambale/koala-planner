@@ -1,6 +1,9 @@
 use super::*;
 use crate::{
-    domain_description::{ClassicalDomain, DomainTasks, FONDProblem}, relaxation::RelaxedComposition, search::{search_graph, StrongPolicy}, task_network::{Method, HTN}
+    domain_description::{ClassicalDomain, DomainTasks, FONDProblem},
+    relaxation::RelaxedComposition,
+    search::{search_graph, StrongPolicy},
+    task_network::{Method, HTN},
 };
 use priority_queue::PriorityQueue;
 use search_node::{AStarStatus, SearchNode};
@@ -21,10 +24,14 @@ pub enum AStarResult {
     NoSolution,
 }
 
+// different users of A* may want entirely different statistics
+pub type CustomStatistics = HashMap<String, u32>;
+
 pub struct AStarStatistics {
     pub space: SearchSpace,
     pub goal_node: Option<Rc<RefCell<SearchNode>>>,
     pub search_time: Duration,
+    pub custom_statistics: CustomStatistics,
 }
 
 impl std::fmt::Display for AStarStatistics {
@@ -32,6 +39,9 @@ impl std::fmt::Display for AStarStatistics {
         writeln!(f, "# of search nodes: {}", self.space.total_nodes);
         writeln!(f, "# of explored nodes: {}", self.space.explored_nodes);
         let time = self.search_time.as_secs_f64();
+        for (key, value) in self.custom_statistics.iter() {
+            writeln!(f, "{}: {}", key, value);
+        }
         writeln!(f, "search duration: {}", time.trunc())
     }
 }
@@ -43,9 +53,12 @@ pub fn a_star_search(
         &mut SearchSpace,
         Rc<RefCell<SearchNode>>,
     ) -> Vec<(u32, String, Option<String>, SearchNode)>,
-    // Using constant function for now
     edge_weight_fn: fn() -> f32,
-    goal_check_fn: fn(&FONDProblem, Rc<RefCell<SearchNode>>) -> AStarResult,
+    goal_check_fn: fn(
+        &FONDProblem,
+        Rc<RefCell<SearchNode>>,
+        &mut CustomStatistics,
+    ) -> AStarResult,
 ) -> (AStarResult, AStarStatistics) {
     let start_time = Instant::now();
     let mut space = SearchSpace::new(
@@ -59,13 +72,15 @@ pub fn a_star_search(
         .compute_h_value(&space, &heuristic_fn);
     space.initial_search_node.borrow_mut().g_value = Some(0.0);
 
+    let mut custom_statistics: HashMap<String, u32> = HashMap::new();
+
     let mut open = PriorityQueue::new();
     open.insert(space.initial_search_node.clone());
 
     while let Some(parent) = open.pop_least() {
         parent.borrow_mut().status = AStarStatus::Closed;
         space.explored_nodes += 1; // closed set increased in size by 1
-        let result = goal_check_fn(problem, parent.clone());
+        let result = goal_check_fn(problem, parent.clone(), &mut custom_statistics);
         match result {
             AStarResult::NoSolution => (),
             _ => {
@@ -75,6 +90,7 @@ pub fn a_star_search(
                         space: space,
                         goal_node: Some(parent.clone()),
                         search_time: start_time.elapsed(),
+                        custom_statistics: custom_statistics,
                     },
                 )
             }
@@ -135,6 +151,7 @@ pub fn a_star_search(
             space: space,
             goal_node: None,
             search_time: start_time.elapsed(),
+            custom_statistics: custom_statistics,
         },
     );
 }

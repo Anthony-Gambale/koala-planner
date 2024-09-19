@@ -2,6 +2,8 @@ use astar::AStarResult;
 use search_node::{Edge, SearchNode};
 use weak_linearization::WeakLinearization;
 
+use super::astar::CustomStatistics;
+use super::search_space::SearchSpace;
 use super::*;
 use crate::{
     domain_description::{ClassicalDomain, DomainTasks, FONDProblem, Facts},
@@ -18,6 +20,7 @@ use std::{
 pub fn is_goal_weak_ld(
     problem: &FONDProblem,
     leaf_node: Rc<RefCell<SearchNode>>,
+    custom_statistics: &mut CustomStatistics,
 ) -> AStarResult {
     if leaf_node.borrow().tn.is_empty() {
         let mut lin = WeakLinearization::new();
@@ -28,10 +31,6 @@ pub fn is_goal_weak_ld(
     }
 }
 
-type NewID = u32; // ID of a task in the new HTN which we are building
-type OldID = u32; // ID of a task in any HTN inside the search space
-type TaskName = u32; // Actual task names (same for all HTNs)
-
 pub enum TaggedTask {
     Primitive(NewID),
     Compound(OldID),
@@ -40,10 +39,16 @@ pub enum TaggedTask {
 pub fn is_goal_strong_od(
     problem: &FONDProblem,
     leaf_node: Rc<RefCell<SearchNode>>,
+    custom_statistics: &mut HashMap<String, u32>,
 ) -> AStarResult {
     if !leaf_node.clone().borrow().tn.is_empty() {
         return AStarResult::NoSolution;
     }
+
+    // a weak LD solution was found and will be attempted
+    *custom_statistics
+        .entry(String::from("# attempted weak LD solutions"))
+        .or_insert(0) += 1;
 
     // construct new FONDProblem for the AO* subproblem
     let mut sub_problem = FONDProblem {
@@ -52,10 +57,6 @@ pub fn is_goal_strong_od(
         initial_state: problem.initial_state.clone(),
         init_tn: deorder(leaf_node.clone()),
     };
-    
-    // debug logging
-    println!("[DEBUG] Found an achievable primitive task network with a weak OD solution");
-    // println!("{}", sub_problem.init_tn);
 
     // make initial task network just one abstract task
     sub_problem.collapse_tn();
@@ -64,17 +65,14 @@ pub fn is_goal_strong_od(
     let (solution, stats) = AOStarSearch::run(&sub_problem, HeuristicType::HAdd);
 
     match solution {
-        SearchResult::Success(policy) => {
-            println!("[DEBUG] Strong OD solution was found");
-            AStarResult::Strong(policy)
-        },
-        SearchResult::NoSolution => {
-            // debug logging
-            println!("[DEBUG] Did not find a strong OD solution");
-            AStarResult::NoSolution
-        },
+        SearchResult::Success(policy) => AStarResult::Strong(policy),
+        SearchResult::NoSolution => AStarResult::NoSolution,
     }
 }
+
+type NewID = u32; // ID of a task in the new HTN which we are building
+type OldID = u32; // ID of a task in any HTN inside the search space
+type TaskName = u32; // Actual task names (same for all HTNs)
 
 pub fn deorder(leaf_node: Rc<RefCell<SearchNode>>) -> HTN {
     // data structures needed for the task network we're building
