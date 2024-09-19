@@ -1,0 +1,51 @@
+(define (domain appointment)
+    (:requirements :typing :hierarchy)
+    (:types
+        client
+    )
+    (:predicates
+        (needs_followup ?c - client)
+    )
+
+    ;; tasks
+
+    (:task scheduling_next_day)
+
+    ;; methods
+
+    (:method m_scheduling_next_day_0
+        :parameters ()
+        :task (scheduling_next_day)
+        :subtasks (and
+            (task0 (schedule_followups))
+        )
+    )
+
+    (:method m_scheduling_next_day_0
+        :parameters ()
+        :task (scheduling_next_day)
+        :subtasks (and
+            (task0 (skip_scheduling))
+        )
+    )
+
+    ;; actions
+
+    (:action conduct_appointment
+        :parameters (?c - client)
+        :precondition ()
+        :effect (oneof (needs_followup ?c) ())
+    )
+
+    (:action schedule_followups
+        :parameters ()
+        :precondition (exists (?c - client) (needs_followup ?c))
+        :effect ()
+    )
+
+    (:action skip_scheduling
+        :parameters ()
+        :precondition (forall (?c - client) (not (needs_followup ?c)))
+        :effect ()
+    )
+)

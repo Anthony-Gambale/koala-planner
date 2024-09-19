@@ -1,14 +1,14 @@
 (define
-    (problem lights_1l)
+    (problem lights_1)
     (:domain lights)
     (:objects
-        lamp - light
+        light1 - light
     )
     (:htn
         :parameters ()
         :subtasks (and
-            (task0 (inspect_light lamp))
-            (task1 (maybe_change_bulb lamp))
+            (task0 (inspect_light light1))
+            (task1 (maybe_change_bulb light1))
             (task2 (verify))
         )
         :ordering (and

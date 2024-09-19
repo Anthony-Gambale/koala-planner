@@ -1,0 +1,18 @@
+(define
+    (problem appointment_1)
+    (:domain appointment)
+    (:objects
+        client1 - client
+    )
+    (:htn
+        :parameters ()
+        :subtasks (and
+            (task0 (conduct_appointment client1))
+            (task1 (scheduling_next_day))
+        )
+        :ordering (and
+            (< task0 task1)
+        )
+    )
+    (:init)
+)

@@ -1,4 +1,4 @@
-(define (problem pb02)
+(define (problem snake_2)
   (:domain snake)
 
   (:objects

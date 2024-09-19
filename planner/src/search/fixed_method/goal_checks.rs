@@ -47,7 +47,7 @@ pub fn is_goal_strong_od(
 
     // a weak LD solution was found and will be attempted
     *custom_statistics
-        .entry(String::from("# attempted weak LD solutions"))
+        .entry(String::from("# of attempted weak LD solutions"))
         .or_insert(0) += 1;
 
     // construct new FONDProblem for the AO* subproblem
@@ -64,8 +64,20 @@ pub fn is_goal_strong_od(
     // call AO* algorithm
     let (solution, stats) = AOStarSearch::run(&sub_problem, HeuristicType::HAdd);
 
+    // accumulate total subroutine search node count
+    *custom_statistics
+        .entry(String::from("# of search nodes in all AO* calls"))
+        .or_insert(0) += stats.search_nodes;
+
     match solution {
-        SearchResult::Success(policy) => AStarResult::Strong(policy),
+        SearchResult::Success(policy) => {
+            // search node count for final successful subroutine call
+            custom_statistics.insert(
+                String::from("# of search nodes in final (successful) AO* call"),
+                stats.search_nodes,
+            );
+            AStarResult::Strong(policy)
+        }
         SearchResult::NoSolution => AStarResult::NoSolution,
     }
 }

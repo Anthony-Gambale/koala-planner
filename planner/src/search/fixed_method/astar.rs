@@ -42,7 +42,7 @@ impl std::fmt::Display for AStarStatistics {
         for (key, value) in self.custom_statistics.iter() {
             writeln!(f, "{}: {}", key, value);
         }
-        writeln!(f, "search duration: {}", time.trunc())
+        writeln!(f, "search duration: {}s", time.trunc())
     }
 }
 

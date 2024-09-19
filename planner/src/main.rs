@@ -95,6 +95,7 @@ fn fixed_method(problem: &FONDProblem, heuristic: heuristic_factory::HeuristicFn
     // );
     if let AStarResult::Strong(policy) = solution {
         println!("Solution was found");
+        println!("# of policy enteries: {}", policy.transitions.len());
         // if (stats.space.total_nodes < 30) {
         //     println!("***************************");
         //     println!("{}", policy);
