@@ -1,0 +1,58 @@
+(define
+    (problem lights_7)
+    (:domain lights)
+    (:objects
+        light1 - light
+        light2 - light
+        light3 - light
+        light4 - light
+        light5 - light
+        light6 - light
+        light7 - light
+    )
+    (:htn
+        :parameters ()
+        :subtasks (and
+            (task0 (inspect_light light1))
+            (task1 (inspect_light light2))
+            (task2 (inspect_light light3))
+            (task3 (inspect_light light4))
+            (task4 (inspect_light light5))
+            (task5 (inspect_light light6))
+            (task6 (inspect_light light7))
+            (task7 (maybe_change_bulb light1))
+            (task8 (maybe_change_bulb light2))
+            (task9 (maybe_change_bulb light3))
+            (task10 (maybe_change_bulb light4))
+            (task11 (maybe_change_bulb light5))
+            (task12 (maybe_change_bulb light6))
+            (task13 (maybe_change_bulb light7))
+            (task14 (verify))
+        )
+        :ordering (and
+            ;; inspections in order
+            (< task0 task1)
+            (< task1 task2)
+            (< task2 task3)
+            (< task3 task4)
+            (< task4 task5)
+            (< task5 task6)
+            ;; change bulbs partially ordered
+            (< task6 task7)
+            (< task6 task8)
+            (< task6 task9)
+            (< task6 task10)
+            (< task6 task11)
+            (< task6 task12)
+            (< task6 task13)
+            ;; verification at the end
+            (< task7 task14)
+            (< task8 task14)
+            (< task9 task14)
+            (< task10 task14)
+            (< task11 task14)
+            (< task12 task14)
+            (< task13 task14)
+        )
+    )
+)

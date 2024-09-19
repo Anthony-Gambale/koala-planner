@@ -1,0 +1,70 @@
+(define
+    (problem lights_9)
+    (:domain lights)
+    (:objects
+        light1 - light
+        light2 - light
+        light3 - light
+        light4 - light
+        light5 - light
+        light6 - light
+        light7 - light
+        light8 - light
+        light9 - light
+    )
+    (:htn
+        :parameters ()
+        :subtasks (and
+            (task0 (inspect_light light1))
+            (task1 (inspect_light light2))
+            (task2 (inspect_light light3))
+            (task3 (inspect_light light4))
+            (task4 (inspect_light light5))
+            (task5 (inspect_light light6))
+            (task6 (inspect_light light7))
+            (task7 (inspect_light light8))
+            (task8 (inspect_light light9))
+            (task9 (maybe_change_bulb light1))
+            (task10 (maybe_change_bulb light2))
+            (task11 (maybe_change_bulb light3))
+            (task12 (maybe_change_bulb light4))
+            (task13 (maybe_change_bulb light5))
+            (task14 (maybe_change_bulb light6))
+            (task15 (maybe_change_bulb light7))
+            (task16 (maybe_change_bulb light8))
+            (task17 (maybe_change_bulb light9))
+            (task18 (verify))
+        )
+        :ordering (and
+            ;; inspections in order
+            (< task0 task1)
+            (< task1 task2)
+            (< task2 task3)
+            (< task3 task4)
+            (< task4 task5)
+            (< task5 task6)
+            (< task6 task7)
+            (< task7 task8)
+            ;; change bulbs partially ordered
+            (< task8 task9)
+            (< task8 task10)
+            (< task8 task11)
+            (< task8 task12)
+            (< task8 task13)
+            (< task8 task14)
+            (< task8 task15)
+            (< task8 task16)
+            (< task8 task17)
+            ;; verification at the end
+            (< task9 task18)
+            (< task10 task18)
+            (< task11 task18)
+            (< task12 task18)
+            (< task13 task18)
+            (< task14 task18)
+            (< task15 task18)
+            (< task16 task18)
+            (< task17 task18)
+        )
+    )
+)

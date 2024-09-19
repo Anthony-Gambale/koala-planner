@@ -1,5 +1,5 @@
 (define
-    (problem lights_2)
+    (problem lights_3)
     (:domain lights)
     (:objects
         light1 - light
