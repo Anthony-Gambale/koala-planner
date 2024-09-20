@@ -69,7 +69,7 @@ fn method_based(problem: &FONDProblem) {
         SearchResult::Success(x) => {
             println!("makespan: {}", x.makespan);
             println!("policy enteries: {}", x.transitions.len());
-            // if (stats.search_nodes < 30) {
+            // if (stats.search_nodes < 50) {
             //     println!("***************************");
             //     println!("{}", x);
             // }
@@ -96,14 +96,14 @@ fn fixed_method(problem: &FONDProblem, heuristic: heuristic_factory::HeuristicFn
     if let AStarResult::Strong(policy) = solution {
         println!("Solution was found");
         println!("# of policy enteries: {}", policy.transitions.len());
-        // if (stats.space.total_nodes < 30) {
+        // if (stats.space.total_nodes < 50) {
         //     println!("***************************");
         //     println!("{}", policy);
         // }
     } else {
         println!("Problem has no solution");
     }
-    // if (stats.space.total_nodes < 30) {
+    // if (stats.space.total_nodes < 50) {
     //     println!("{}", stats.space.to_string(problem));
     // }
 }

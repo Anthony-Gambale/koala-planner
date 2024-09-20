@@ -9,21 +9,21 @@
 
     ;; tasks
 
-    (:task scheduling_next_day)
+    (:task schedule_next_day)
 
     ;; methods
 
-    (:method m_scheduling_next_day_0
+    (:method aaa ;; m_schedule_next_day_0
         :parameters ()
-        :task (scheduling_next_day)
+        :task (schedule_next_day)
         :subtasks (and
-            (task0 (schedule_followups))
+            (task0 (reuse_todays_schedule))
         )
     )
 
-    (:method m_scheduling_next_day_0
+    (:method bbb ;; m_schedule_next_day_1
         :parameters ()
-        :task (scheduling_next_day)
+        :task (schedule_next_day)
         :subtasks (and
             (task0 (skip_scheduling))
         )
@@ -37,9 +37,9 @@
         :effect (oneof (needs_followup ?c) ())
     )
 
-    (:action schedule_followups
+    (:action reuse_todays_schedule
         :parameters ()
-        :precondition (exists (?c - client) (needs_followup ?c))
+        :precondition (forall (?c - client) (needs_followup ?c))
         :effect ()
     )
 
