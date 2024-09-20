@@ -46,6 +46,7 @@ def solve(domain, problem, optional_flags, timeout=30):
             debug_suffix = "target/debug/planner"
             debug_mode = False
             if os.path.isfile(planner_path + release_suffix):
+                print("Running in release mode")
                 result = subprocess.run(
                     [planner_path + release_suffix, planner_path + "result.json"] + optional_flags,
                     capture_output=True, timeout= 60 * timeout)

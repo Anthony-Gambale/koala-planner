@@ -2,7 +2,9 @@ use search_node::{AStarStatus, Edge, SearchNode};
 
 use super::*;
 use crate::{
-    domain_description::{ClassicalDomain, DomainTasks, FONDProblem, Facts}, relaxation::{OutcomeDeterminizer, RelaxedComposition}, task_network::{Method, HTN}
+    domain_description::{ClassicalDomain, DomainTasks, FONDProblem, Facts},
+    relaxation::{OutcomeDeterminizer, RelaxedComposition},
+    task_network::{Method, HTN},
 };
 use std::{
     cell::RefCell,

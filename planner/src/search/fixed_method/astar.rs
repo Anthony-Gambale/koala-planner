@@ -54,11 +54,7 @@ pub fn a_star_search(
         Rc<RefCell<SearchNode>>,
     ) -> Vec<(u32, String, Option<String>, SearchNode)>,
     edge_weight_fn: fn() -> f32,
-    goal_check_fn: fn(
-        &FONDProblem,
-        Rc<RefCell<SearchNode>>,
-        &mut CustomStatistics,
-    ) -> AStarResult,
+    goal_check_fn: fn(&FONDProblem, Rc<RefCell<SearchNode>>, &mut CustomStatistics) -> AStarResult,
 ) -> (AStarResult, AStarStatistics) {
     let start_time = Instant::now();
     let mut space = SearchSpace::new(

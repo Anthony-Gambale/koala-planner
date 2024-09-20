@@ -2,18 +2,20 @@ use search_space::SearchSpace;
 
 use super::*;
 use crate::{
-    domain_description::{ClassicalDomain, DomainTasks, FONDProblem}, relaxation::RelaxedComposition, task_network::{Applicability, Method, Task, HTN}
+    domain_description::{ClassicalDomain, DomainTasks, FONDProblem},
+    relaxation::RelaxedComposition,
+    task_network::{Applicability, Method, Task, HTN},
 };
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
 use std::{
     cell::RefCell,
     collections::{BTreeMap, HashMap, HashSet},
     rc::Rc,
     string,
 };
-use std::hash::{Hash, Hasher};
-use std::collections::hash_map::DefaultHasher;
 
-#[derive (PartialEq, Eq)]
+#[derive(PartialEq, Eq)]
 pub enum AStarStatus {
     Closed,
     Open,
@@ -94,7 +96,11 @@ impl SearchNode {
             let name = problem.facts.get_fact(*id);
             state_names.push(name);
         }
-        format!("state={:?} uncon={:?}", state_names, SearchNode::to_string_tn(tn, problem))
+        format!(
+            "state={:?} uncon={:?}",
+            state_names,
+            SearchNode::to_string_tn(tn, problem)
+        )
     }
 
     pub fn compute_h_value(
@@ -102,7 +108,12 @@ impl SearchNode {
         s: &SearchSpace,
         h: &impl Fn(&HTN, &HashSet<u32>, &RelaxedComposition, &HashMap<u32, u32>) -> f32,
     ) {
-        self.h_value = Some(h(&self.tn, &self.state, &s.relaxed_domain.0, &s.relaxed_domain.1));
+        self.h_value = Some(h(
+            &self.tn,
+            &self.state,
+            &s.relaxed_domain.0,
+            &s.relaxed_domain.1,
+        ));
     }
 
     pub fn f_value(&self) -> f32 {

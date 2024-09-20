@@ -1,13 +1,14 @@
-use crate::domain_description::Facts;
-use crate::domain_description::FONDProblem;
-use super::super::*;
-use std::{
-    borrow::BorrowMut,
-    collections::{BTreeSet, HashMap, HashSet}, vec,
-};
 use super::super::astar::{a_star_search, AStarResult};
 use super::super::goal_checks::*;
+use super::super::*;
+use crate::domain_description::FONDProblem;
+use crate::domain_description::Facts;
 use search_node::get_successors_systematic;
+use std::{
+    borrow::BorrowMut,
+    collections::{BTreeSet, HashMap, HashSet},
+    vec,
+};
 
 #[cfg(test)]
 #[test]
@@ -24,23 +25,31 @@ pub fn weak_ld_problem_1() {
             (
                 String::from("m0"),
                 String::from("comp_init"),
-                vec![String::from("prim_a"), String::from("comp_c"), String::from("prim_x")],
-                vec![(0,1), (1,2)],
+                vec![
+                    String::from("prim_a"),
+                    String::from("comp_c"),
+                    String::from("prim_x"),
+                ],
+                vec![(0, 1), (1, 2)],
             ),
             (
                 String::from("m1"),
                 String::from("comp_c"),
                 vec![String::from("prim_b"), String::from("comp_d")],
-                vec![(0,1)]
+                vec![(0, 1)],
             ),
             (
                 String::from("m2"),
                 String::from("comp_d"),
                 vec![String::from("prim_e")],
-                vec![]
-            )
+                vec![],
+            ),
         ],
-        vec![String::from("comp_init"), String::from("comp_c"), String::from("comp_d")],
+        vec![
+            String::from("comp_init"),
+            String::from("comp_c"),
+            String::from("comp_d"),
+        ],
         HashSet::new(),
         String::from("comp_init"),
     );
@@ -57,7 +66,10 @@ pub fn weak_ld_problem_1() {
     } else {
         println!("NO SOLUTION");
     }
-    println!("\nSEARCH SPACE explored:{} total:{}\n", statistics.space.explored_nodes, statistics.space.total_nodes);
+    println!(
+        "\nSEARCH SPACE explored:{} total:{}\n",
+        statistics.space.explored_nodes, statistics.space.total_nodes
+    );
     println!("{}", statistics.space.to_string(&problem));
 }
 
@@ -118,7 +130,10 @@ pub fn weak_ld_problem_2() {
     } else {
         println!("NO SOLUTION");
     }
-    println!("\nSEARCH SPACE explored:{} total:{}\n", statistics.space.explored_nodes, statistics.space.total_nodes);
+    println!(
+        "\nSEARCH SPACE explored:{} total:{}\n",
+        statistics.space.explored_nodes, statistics.space.total_nodes
+    );
     println!("{}", statistics.space.to_string(&problem));
 }
 
@@ -145,7 +160,7 @@ pub fn weak_ld_problem_3() {
         vec![f1.clone()],
         vec![
             (a.clone(), vec![], vec![(vec![], vec![])]),
-            (b.clone(), vec![f1.clone()], vec![(vec![], vec![])])
+            (b.clone(), vec![f1.clone()], vec![(vec![], vec![])]),
         ],
         vec![
             (m1.clone(), init.clone(), vec![b.clone()], vec![]),
@@ -158,7 +173,7 @@ pub fn weak_ld_problem_3() {
         ],
         vec![init.clone()],
         HashSet::new(),
-        init.clone()
+        init.clone(),
     );
     let (solution, statistics) = a_star_search(
         &problem,
@@ -173,6 +188,9 @@ pub fn weak_ld_problem_3() {
     } else {
         println!("NO SOLUTION");
     }
-    println!("\nSEARCH SPACE explored:{} total:{}\n", statistics.space.explored_nodes, statistics.space.total_nodes);
+    println!(
+        "\nSEARCH SPACE explored:{} total:{}\n",
+        statistics.space.explored_nodes, statistics.space.total_nodes
+    );
     println!("{}", statistics.space.to_string(&problem));
 }

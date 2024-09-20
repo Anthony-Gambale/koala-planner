@@ -1,13 +1,15 @@
-use crate::domain_description::Facts;
-use crate::domain_description::FONDProblem;
-use super::super::*;
-use std::{
-    collections::{BTreeSet, HashMap, HashSet}, vec, rc::Rc,
-};
 use super::super::astar::{a_star_search, AStarResult};
 use super::super::goal_checks::*;
+use super::super::*;
+use crate::domain_description::FONDProblem;
+use crate::domain_description::Facts;
 use search_node::get_successors_systematic;
 use search_node::SearchNode;
+use std::{
+    collections::{BTreeSet, HashMap, HashSet},
+    rc::Rc,
+    vec,
+};
 
 #[cfg(test)]
 #[test]
@@ -24,24 +26,30 @@ pub fn strong_od_problem_1() {
     let problem = FONDProblem::new(
         vec![f1.clone(), f2.clone()],
         vec![
-            (a.clone(), vec![], vec![
-                (vec![f1.clone()], vec![]),
-                (vec![f2.clone()], vec![])
-            ]),
-            (b.clone(), vec![f1.clone()], vec![(vec![f2.clone()], vec![])]),
-            (c.clone(), vec![f2.clone()], vec![(vec![f1.clone()], vec![])])
+            (
+                a.clone(),
+                vec![],
+                vec![(vec![f1.clone()], vec![]), (vec![f2.clone()], vec![])],
+            ),
+            (
+                b.clone(),
+                vec![f1.clone()],
+                vec![(vec![f2.clone()], vec![])],
+            ),
+            (
+                c.clone(),
+                vec![f2.clone()],
+                vec![(vec![f1.clone()], vec![])],
+            ),
         ],
         vec![
             (
-                minit.clone(), init.clone(),
+                minit.clone(),
+                init.clone(),
                 vec![a.clone(), t.clone()],
-                vec![(0,1)]
+                vec![(0, 1)],
             ),
-            (
-                mt.clone(), t.clone(),
-                vec![b.clone(), c.clone()],
-                vec![]
-            )
+            (mt.clone(), t.clone(), vec![b.clone(), c.clone()], vec![]),
         ],
         vec![init.clone(), t.clone()],
         HashSet::new(),
@@ -60,7 +68,10 @@ pub fn strong_od_problem_1() {
     } else {
         println!("\nNO PLAN\n");
     }
-    println!("\nSEARCH SPACE explored:{} total:{}\n", statistics.space.explored_nodes, statistics.space.total_nodes);
+    println!(
+        "\nSEARCH SPACE explored:{} total:{}\n",
+        statistics.space.explored_nodes, statistics.space.total_nodes
+    );
     println!("{}", statistics.space.to_string(&problem));
 }
 
@@ -77,20 +88,28 @@ pub fn strong_od_problem_2() {
     let problem = FONDProblem::new(
         vec![f1.clone(), f2.clone()],
         vec![
-            (a.clone(), vec![], vec![
-                (vec![f1.clone()], vec![]),
-                (vec![f2.clone()], vec![])
-            ]),
-            (b.clone(), vec![f1.clone()], vec![(vec![f2.clone()], vec![])]),
-            (c.clone(), vec![f2.clone()], vec![(vec![f1.clone()], vec![])])
-        ],
-        vec![
             (
-                minit.clone(), init.clone(),
-                vec![a.clone(), b.clone(), c.clone()],
-                vec![(0,1), (0,2)]
-            )
+                a.clone(),
+                vec![],
+                vec![(vec![f1.clone()], vec![]), (vec![f2.clone()], vec![])],
+            ),
+            (
+                b.clone(),
+                vec![f1.clone()],
+                vec![(vec![f2.clone()], vec![])],
+            ),
+            (
+                c.clone(),
+                vec![f2.clone()],
+                vec![(vec![f1.clone()], vec![])],
+            ),
         ],
+        vec![(
+            minit.clone(),
+            init.clone(),
+            vec![a.clone(), b.clone(), c.clone()],
+            vec![(0, 1), (0, 2)],
+        )],
         vec![init.clone()],
         HashSet::new(),
         init.clone(),
@@ -108,6 +127,9 @@ pub fn strong_od_problem_2() {
     } else {
         println!("\nNO PLAN\n");
     }
-    println!("\nSEARCH SPACE explored:{} total:{}\n", statistics.space.explored_nodes, statistics.space.total_nodes);
+    println!(
+        "\nSEARCH SPACE explored:{} total:{}\n",
+        statistics.space.explored_nodes, statistics.space.total_nodes
+    );
     println!("{}", statistics.space.to_string(&problem));
 }

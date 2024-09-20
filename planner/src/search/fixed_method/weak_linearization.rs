@@ -39,13 +39,8 @@ impl WeakLinearization {
         // are only used for testing purposes, so this code will not be used in experiments
         // TODO for future, use a better data structure, or store the elements in reverse
         // order
-        self.linearization.insert(
-            0,
-            (
-                node.borrow().state.clone(),
-                node.borrow().tn.clone(),
-            ),
-        );
+        self.linearization
+            .insert(0, (node.borrow().state.clone(), node.borrow().tn.clone()));
         if let Some(parent) = node.borrow().parent.clone() {
             self.build(parent.clone());
         }

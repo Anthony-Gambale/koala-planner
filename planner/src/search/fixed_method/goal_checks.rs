@@ -79,6 +79,7 @@ pub fn is_goal_strong_od(
                 String::from("# of search nodes in final (successful) AO* call"),
                 stats.search_nodes,
             );
+            custom_statistics.insert(String::from("makespan"), policy.makespan as u32);
             AStarResult::Strong(policy)
         }
         SearchResult::NoSolution => {

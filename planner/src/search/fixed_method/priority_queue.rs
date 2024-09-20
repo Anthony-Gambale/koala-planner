@@ -1,10 +1,5 @@
-use std::{
-    cell::RefCell,
-    collections::BTreeMap,
-    rc::Rc,
-    string,
-};
 use search_node::SearchNode;
+use std::{cell::RefCell, collections::BTreeMap, rc::Rc, string};
 
 use crate::heuristics;
 
@@ -16,22 +11,31 @@ use super::*;
  * TODO: Consider using the ordered-float crate instead.
  */
 #[derive(Clone, Copy)]
- struct OrderedFloat(f32);
+struct OrderedFloat(f32);
 impl Ord for OrderedFloat {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        assert!(!self.0.is_nan() && !other.0.is_nan(), "NaN values are not allowed");
+        assert!(
+            !self.0.is_nan() && !other.0.is_nan(),
+            "NaN values are not allowed"
+        );
         self.0.partial_cmp(&other.0).unwrap()
     }
 }
 impl PartialOrd for OrderedFloat {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        assert!(!self.0.is_nan() && !other.0.is_nan(), "NaN values are not allowed");
+        assert!(
+            !self.0.is_nan() && !other.0.is_nan(),
+            "NaN values are not allowed"
+        );
         self.0.partial_cmp(&other.0)
     }
 }
 impl PartialEq for OrderedFloat {
     fn eq(&self, other: &Self) -> bool {
-        assert!(!self.0.is_nan() && !other.0.is_nan(), "NaN values are not allowed");
+        assert!(
+            !self.0.is_nan() && !other.0.is_nan(),
+            "NaN values are not allowed"
+        );
         self.0 == other.0
     }
 }
