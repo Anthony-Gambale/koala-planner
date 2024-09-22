@@ -1,14 +1,14 @@
 (define
-    (problem appointment_1)
-    (:domain appointment)
+    (problem lunch_2)
+    (:domain lunch)
     (:objects
-        client1 - client
+        door_0 - door
     )
     (:htn
         :parameters ()
         :subtasks (and
-            (task0 (conduct_appointment client1))
-            (task1 (schedule_next_day))
+            (task0 (inspect_door door_0))
+            (task1 (eat_lunch))
         )
         :ordering (and
             (< task0 task1)

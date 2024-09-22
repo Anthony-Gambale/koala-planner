@@ -2,7 +2,7 @@ use astar::AStarResult;
 use search_node::{Edge, SearchNode};
 use weak_linearization::WeakLinearization;
 
-use super::astar::CustomStatistics;
+use super::astar::{CustomStatistics, CustomStatistic};
 use super::search_space::SearchSpace;
 use super::*;
 use crate::{
@@ -39,16 +39,16 @@ pub enum TaggedTask {
 pub fn is_goal_strong_od(
     problem: &FONDProblem,
     leaf_node: Rc<RefCell<SearchNode>>,
-    custom_statistics: &mut HashMap<String, u32>,
+    custom_statistics: &mut CustomStatistics,
 ) -> AStarResult {
     if !leaf_node.clone().borrow().tn.is_empty() {
         return AStarResult::NoSolution;
     }
 
     // a weak LD solution was found and will be attempted
-    *custom_statistics
+    custom_statistics
         .entry(String::from("# of attempted weak LD solutions"))
-        .or_insert(0) += 1;
+        .or_insert(CustomStatistic::Value(0)).accumulate(1);
 
     // construct new FONDProblem for the AO* subproblem
     let mut sub_problem = FONDProblem {
@@ -67,9 +67,9 @@ pub fn is_goal_strong_od(
     let (solution, stats) = AOStarSearch::run(&sub_problem, HeuristicType::HAdd);
 
     // accumulate total subroutine search node count
-    *custom_statistics
+    custom_statistics
         .entry(String::from("# of search nodes in all AO* calls"))
-        .or_insert(0) += stats.search_nodes;
+        .or_insert(CustomStatistic::List(vec![])).accumulate(stats.search_nodes);
 
     match solution {
         SearchResult::Success(policy) => {
@@ -77,9 +77,9 @@ pub fn is_goal_strong_od(
             // search node count for final successful subroutine call
             custom_statistics.insert(
                 String::from("# of search nodes in final (successful) AO* call"),
-                stats.search_nodes,
+                CustomStatistic::Value(stats.search_nodes),
             );
-            custom_statistics.insert(String::from("makespan"), policy.makespan as u32);
+            custom_statistics.insert(String::from("makespan"), CustomStatistic::Value(policy.makespan as u32));
             AStarResult::Strong(policy)
         }
         SearchResult::NoSolution => {

@@ -25,7 +25,11 @@ pub enum AStarResult {
 }
 
 // different users of A* may want entirely different statistics
-pub type CustomStatistics = HashMap<String, u32>;
+pub enum CustomStatistic {
+    Value(u32),
+    List(Vec<u32>),
+}
+pub type CustomStatistics = BTreeMap<String, CustomStatistic>;
 
 pub struct AStarStatistics {
     pub space: SearchSpace,
@@ -40,9 +44,21 @@ impl std::fmt::Display for AStarStatistics {
         writeln!(f, "# of explored nodes: {}", self.space.explored_nodes);
         let time = self.search_time.as_secs_f64();
         for (key, value) in self.custom_statistics.iter() {
-            writeln!(f, "{}: {}", key, value);
+            match value {
+                CustomStatistic::Value(val) => writeln!(f, "{}: {}", key, val),
+                CustomStatistic::List(vec) => writeln!(f, "{}: {:?}", key, vec),
+            };
         }
         writeln!(f, "search duration: {}s", time.trunc())
+    }
+}
+
+impl CustomStatistic {
+    pub fn accumulate(&mut self, y: u32) {
+        match self {
+            CustomStatistic::Value(x) => *x += y,
+            CustomStatistic::List(v) => v.push(y),
+        }
     }
 }
 
@@ -68,7 +84,7 @@ pub fn a_star_search(
         .compute_h_value(&space, &heuristic_fn);
     space.initial_search_node.borrow_mut().g_value = Some(0.0);
 
-    let mut custom_statistics: HashMap<String, u32> = HashMap::new();
+    let mut custom_statistics: CustomStatistics = BTreeMap::new();
 
     let mut open = PriorityQueue::new();
     open.insert(space.initial_search_node.clone());
