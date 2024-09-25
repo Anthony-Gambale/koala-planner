@@ -70,6 +70,7 @@ pub fn is_goal_strong_od(
     custom_statistics
         .entry(String::from("# of search nodes in all AO* calls"))
         .or_insert(CustomStatistic::List(vec![])).accumulate(stats.search_nodes);
+    leaf_node.borrow_mut().goal_tested = true;
 
     match solution {
         SearchResult::Success(policy) => {

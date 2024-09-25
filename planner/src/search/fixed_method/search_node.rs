@@ -36,6 +36,7 @@ pub struct SearchNode {
     pub parent: Option<Rc<RefCell<SearchNode>>>,
     pub g_value: Option<f32>,
     pub h_value: Option<f32>,
+    pub goal_tested: bool,
 }
 
 impl SearchNode {
@@ -49,6 +50,7 @@ impl SearchNode {
             parent: None,
             g_value: None,
             h_value: None,
+            goal_tested: false,
         };
     }
 
@@ -72,7 +74,10 @@ impl SearchNode {
     }
 
     pub fn to_string(&self, problem: &FONDProblem) -> String {
-        SearchNode::to_string_structure(&self.state, &self.tn, problem)
+        format!("{} {}",
+            SearchNode::to_string_structure(&self.state, &self.tn, problem),
+            if self.goal_tested {"GOAL_TESTED"} else {""}
+        )
     }
 
     pub fn to_string_tn(tn: &HTN, problem: &FONDProblem) -> Vec<String> {

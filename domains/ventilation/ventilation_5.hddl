@@ -1,15 +1,12 @@
 (define
-    (problem lunch_8)
-    (:domain lunch)
+    (problem ventilation_5)
+    (:domain ventilation)
     (:objects
         door_0 - door
         door_1 - door
         door_2 - door
         door_3 - door
         door_4 - door
-        door_5 - door
-        door_6 - door
-        door_7 - door
     )
     (:htn
         :parameters ()
@@ -19,10 +16,7 @@
             (task2 (inspect_door door_2))
             (task3 (inspect_door door_3))
             (task4 (inspect_door door_4))
-            (task5 (inspect_door door_5))
-            (task6 (inspect_door door_6))
-            (task7 (inspect_door door_7))
-            (task8 (eat_lunch))
+            (task5 (check_ventilation door_4))
         )
         :ordering (and
             (< task0 task1)
@@ -30,9 +24,6 @@
             (< task2 task3)
             (< task3 task4)
             (< task4 task5)
-            (< task5 task6)
-            (< task6 task7)
-            (< task7 task8)
         )
     )
     (:init)

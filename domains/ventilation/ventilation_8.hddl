@@ -1,6 +1,6 @@
 (define
-    (problem lunch_8)
-    (:domain lunch)
+    (problem ventilation_8)
+    (:domain ventilation)
     (:objects
         door_0 - door
         door_1 - door
@@ -22,7 +22,7 @@
             (task5 (inspect_door door_5))
             (task6 (inspect_door door_6))
             (task7 (inspect_door door_7))
-            (task8 (eat_lunch))
+            (task8 (check_ventilation door_7))
         )
         :ordering (and
             (< task0 task1)

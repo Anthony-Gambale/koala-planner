@@ -1,6 +1,6 @@
 (define
-    (problem lunch_1)
-    (:domain lunch)
+    (problem ventilation_1)
+    (:domain ventilation_1)
     (:objects
         door_0 - door
     )
@@ -8,7 +8,7 @@
         :parameters ()
         :subtasks (and
             (task0 (inspect_door door_0))
-            (task1 (eat_lunch))
+            (task1 (check_ventilation door_0))
         )
         :ordering (and
             (< task0 task1)

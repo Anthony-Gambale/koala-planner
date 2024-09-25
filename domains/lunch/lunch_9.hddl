@@ -1,5 +1,5 @@
 (define
-    (problem lunch_10)
+    (problem lunch_9)
     (:domain lunch)
     (:objects
         door_0 - door
