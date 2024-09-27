@@ -30,7 +30,32 @@ fn main() {
     }
     let problem = read_json_domain(&args[1]);
 
-    let heuristic = match args.get(3) {
+    // TODO: Refactor flexible method and fixed method to accept
+    // heuristic input of the same type, so we only need one of the
+    // following two match expressions
+
+    let heuristic_flexible = match args.get(3) {
+        Some(flag) => match flag.as_str() {
+            "--add" => {
+                println!("Using Add heuristic");
+                HeuristicType::HAdd
+            },
+            "--max" => {
+                println!("Using Max heuristic");
+                HeuristicType::HMax
+            },
+            "--ff" => {
+                println!("Using FF heuristic");
+                HeuristicType::HFF
+            },
+            _ => panic!("Unknown heuristic")
+        },
+        None => {
+            panic!("Expected heuristic argument")
+        }
+    };
+
+    let heuristic_fixed = match args.get(3) {
         Some(flag) => match flag.as_str() {
             "--add" => {
                 println!("Using Add heuristic");
@@ -54,16 +79,22 @@ fn main() {
 
     match args.get(2) {
         Some(flag) => match flag.as_str() {
-            "--fixed" => fixed_method(&problem, heuristic),
-            "--flexible" => method_based(&problem),
-            _ => panic!("Did not recognise flag {}", flag),
+            "--fixed" => {
+                println!("Running fixed method solver");
+                fixed_method(&problem, heuristic_fixed)
+            },
+            "--flexible" => {
+                println!("Running method based solver");
+                method_based(&problem, heuristic_flexible)
+            },
+            _ => panic!("Did not recognise flag {}", flag)
         },
-        None => method_based(&problem),
+        None => method_based(&problem, heuristic_flexible),
     }
 }
 
-fn method_based(problem: &FONDProblem) {
-    let (solution, stats) = search::AOStarSearch::run(problem, HeuristicType::HAdd);
+fn method_based(problem: &FONDProblem, h_type: HeuristicType) {
+    let (solution, stats) = search::AOStarSearch::run(problem, h_type);
     print!("{}", stats);
     match solution {
         SearchResult::Success(x) => {
