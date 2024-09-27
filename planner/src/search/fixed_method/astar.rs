@@ -27,6 +27,7 @@ pub enum AStarResult {
 // different users of A* may want entirely different statistics
 pub enum CustomStatistic {
     Value(u32),
+    FloatValue(f64),
     List(Vec<u32>),
 }
 pub type CustomStatistics = BTreeMap<String, CustomStatistic>;
@@ -34,22 +35,20 @@ pub type CustomStatistics = BTreeMap<String, CustomStatistic>;
 pub struct AStarStatistics {
     pub space: SearchSpace,
     pub goal_node: Option<Rc<RefCell<SearchNode>>>,
-    pub search_time: Duration,
     pub custom_statistics: CustomStatistics,
 }
 
 impl std::fmt::Display for AStarStatistics {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
-        writeln!(f, "# of search nodes: {}", self.space.total_nodes);
-        writeln!(f, "# of explored nodes: {}", self.space.explored_nodes);
-        let time = self.search_time.as_secs_f64();
         for (key, value) in self.custom_statistics.iter() {
             match value {
                 CustomStatistic::Value(val) => writeln!(f, "{}: {}", key, val),
                 CustomStatistic::List(vec) => writeln!(f, "{}: {:?}", key, vec),
+                CustomStatistic::FloatValue(val) => writeln!(f, "{}: {}", key, val),
             };
-        }
-        writeln!(f, "search duration: {}s", time.trunc())
+        };
+        writeln!(f, "# of search nodes: {}", self.space.total_nodes);
+        writeln!(f, "# of explored nodes: {}", self.space.explored_nodes)
     }
 }
 
@@ -58,8 +57,24 @@ impl CustomStatistic {
         match self {
             CustomStatistic::Value(x) => *x += y,
             CustomStatistic::List(v) => v.push(y),
+            _ => panic!("Cannot accumulate any other type"),
         }
     }
+}
+
+pub fn calculate_ipc_score(statistics: &mut CustomStatistics, start_time: Instant) {
+    let duration = start_time.elapsed().as_secs_f64();
+    statistics.insert(
+        String::from("duration (seconds)"),
+        CustomStatistic::FloatValue(duration),
+    );
+    let ipc_score = if duration > 1.0 {
+        1.0 - (duration.log(10.0) / (1800.0 as f64).log(10.0))
+    } else {1.0};
+    statistics.insert(
+        String::from("IPC Score"),
+        CustomStatistic::FloatValue(ipc_score),
+    );
 }
 
 pub fn a_star_search(
@@ -96,15 +111,22 @@ pub fn a_star_search(
         match result {
             AStarResult::NoSolution => (),
             _ => {
+                let duration = start_time.elapsed().as_secs_f64();
+                custom_statistics.insert(
+                    String::from("IPC Score"),
+                    CustomStatistic::FloatValue(
+                        1.0 - (duration.log(2.0) / (1800.0 as f64).log(2.0)),
+                    ),
+                );
+                calculate_ipc_score(&mut custom_statistics, start_time);
                 return (
                     result,
                     AStarStatistics {
                         space: space,
                         goal_node: Some(parent.clone()),
-                        search_time: start_time.elapsed(),
                         custom_statistics: custom_statistics,
                     },
-                )
+                );
             }
         }
         let successors = successor_fn(&mut space, parent.clone());
@@ -157,12 +179,12 @@ pub fn a_star_search(
             }
         }
     }
+    calculate_ipc_score(&mut custom_statistics, start_time);
     return (
         AStarResult::NoSolution,
         AStarStatistics {
             space: space,
             goal_node: None,
-            search_time: start_time.elapsed(),
             custom_statistics: custom_statistics,
         },
     );
