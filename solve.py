@@ -61,7 +61,7 @@ def solve(domain, problem, optional_flags, timeout=30):
                 print(f"No binary found in {planner_path + release_suffix} or {planner_path + debug_suffix}, exiting.")
                 sys.exit(1)
             if not debug_mode:
-                with open(path + f"/{problem}_solution.txt", "x") as f:
+                with open(path + f"/{problem}_solution_{''.join(optional_flags)}.txt", "x") as f:
                     f.write(result.stdout.decode("utf-8"))
         except subprocess.TimeoutExpired:
             print(f'\t\ttimeout for {problem}')
