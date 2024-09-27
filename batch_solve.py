@@ -13,9 +13,7 @@ if __name__ == "__main__":
         resource.setrlimit(resource.RLIMIT_AS, (mem_limit, mem_limit))
         for arg in args[1:]:
             print(f"Solving domain {arg}:")
-            #chdir(f"domains/{arg}")
             filenames = glob(f"domains/{arg}/" + '*')
-            print(filenames)
             domain = None
             problems = []
             for filename in filenames:
@@ -39,4 +37,3 @@ if __name__ == "__main__":
                     solve(domain, problem, ["--flexible", "--ff"])
                 except MemoryError:
                     print(f'\t\tmemory limit reached.')
-            #chdir("..")
