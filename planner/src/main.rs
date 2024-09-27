@@ -51,29 +51,25 @@ fn main() {
             _ => panic!("Unknown heuristic")
         },
         None => {
-            panic!("Expected heuristic argument")
+            panic!("Expected heuristic flag")
         }
     };
 
     let heuristic_fixed = match args.get(3) {
         Some(flag) => match flag.as_str() {
             "--add" => {
-                println!("Using Add heuristic");
                 heuristic_factory::create_function_with_heuristic(h_add)
             },
             "--max" => {
-                println!("Using Max heuristic");
                 heuristic_factory::create_function_with_heuristic(h_max)
             },
             "--ff" => {
-                println!("Using FF heuristic");
                 heuristic_factory::create_function_with_heuristic(h_ff)
             },
             _ => panic!("Did not recognise flag {}", flag),
         },
         None => {
-            println!("Using constant zero heuristic");
-            heuristic_factory::zero_heuristic()
+            panic!("Expected heuristic flag");
         }
     };
 
