@@ -61,30 +61,26 @@ pub fn is_goal_strong_od(
     // make initial task network just one abstract task
     sub_problem.collapse_tn();
 
-    // println!("[DEBUG] Testing a weak LD solution");
-
     // call AO* algorithm
     let (solution, stats) = AOStarSearch::run(&sub_problem, HeuristicType::HAdd);
 
     // accumulate total subroutine search node count
     custom_statistics
         .entry(String::from("# of search nodes in all AO* calls"))
-        .or_insert(CustomStatistic::List(vec![])).accumulate(stats.search_nodes);
+        .or_insert(CustomStatistic::Value(0)).accumulate(stats.search_nodes);
     leaf_node.borrow_mut().goal_tested = true;
 
     match solution {
         SearchResult::Success(policy) => {
-            // println!("[DEBUG] The de-ordering was strong OD");
             // search node count for final successful subroutine call
-            custom_statistics.insert(
-                String::from("# of search nodes in final (successful) AO* call"),
-                CustomStatistic::Value(stats.search_nodes),
-            );
+            // custom_statistics.insert(
+            //     String::from("# of search nodes in final (successful) AO* call"),
+            //     CustomStatistic::Value(stats.search_nodes),
+            // );
             custom_statistics.insert(String::from("makespan"), CustomStatistic::Value(policy.makespan as u32));
             AStarResult::Strong(policy)
         }
         SearchResult::NoSolution => {
-            // println!("[DEBUG] The de-ordering was NOT strong OD");
             AStarResult::NoSolution
         }
     }

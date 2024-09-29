@@ -32,8 +32,8 @@ if __name__ == "__main__":
                     solve(domain, problem, ["--fixed", "--add"])
                     solve(domain, problem, ["--fixed", "--max"])
                     solve(domain, problem, ["--fixed", "--ff"])
-                    solve(domain, problem, ["--flexible", "--add"])
-                    solve(domain, problem, ["--flexible", "--max"])
-                    solve(domain, problem, ["--flexible", "--ff"])
+                    #solve(domain, problem, ["--flexible", "--add"])
+                    #solve(domain, problem, ["--flexible", "--max"])
+                    #solve(domain, problem, ["--flexible", "--ff"])
                 except MemoryError:
                     print(f'\t\tmemory limit reached.')
